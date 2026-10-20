@@ -5,13 +5,14 @@ welcome: bug reports, fixes, features, and documentation.
 
 ## Community
 
-Join the [Docky Discord](https://discord.gg/vAwVNtPSgE) to ask questions, share
-widgets, and follow development. [Sponsors](https://github.com/sponsors/josejuanqm)
-get a supporter role there.
+This repository is the `Mark1708/docky` fork. The
+[Docky Discord](https://discord.gg/vAwVNtPSgE) and
+[Jose Quintero's sponsorship page](https://github.com/sponsors/josejuanqm)
+belong to and support the upstream project.
 
 ## Reporting issues
 
-Open an issue at https://github.com/josejuanqm/docky/issues. Helpful reports
+Open fork issues at https://github.com/Mark1708/docky/issues. Helpful reports
 include:
 
 - macOS version and Mac model
@@ -22,7 +23,7 @@ include:
 
 ## Development setup
 
-1. Fork and clone the repository.
+1. Clone `https://github.com/Mark1708/docky.git`.
 2. Open `Docky.xcodeproj` in Xcode 16 or later.
 3. Build and run the `Docky` scheme.
 
@@ -35,12 +36,18 @@ under `Docky/` are picked up automatically without editing the project file.
 - Match the surrounding code style; Docky leans on AppKit + SwiftUI and uses
   explanatory comments only where the reasoning is non-obvious (for example, the
   private-API usage in `Docky/Private/`).
-- Verify the app builds and runs before opening a PR:
+- Run the localization validator, release-preflight fixtures, unsigned build,
+  and app-hosted tests before opening a PR:
 
   ```sh
+  python3 scripts/validate_localizations.py
+  python3 -m unittest discover -s scripts/tests
   xcodebuild -project Docky.xcodeproj -scheme Docky \
     -configuration Debug -destination 'platform=macOS' \
     CODE_SIGNING_ALLOWED=NO build
+  DOCKY_TEST_MODE=1 xcodebuild -project Docky.xcodeproj -scheme Docky \
+    -configuration Debug -destination 'platform=macOS' \
+    CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= test
   ```
 
 - Describe what changed and why, and include before/after notes or screenshots
