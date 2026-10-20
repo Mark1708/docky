@@ -299,15 +299,13 @@ private struct TimeOfDayTriggerEditor: View {
     @State var model: TimeOfDayTrigger
     @Bindable private var profileService = ProfileService.shared
 
-    private static let weekdays: [(symbol: String, label: String)] = [
-        (symbol: "1", label: "Sun"),
-        (symbol: "2", label: "Mon"),
-        (symbol: "3", label: "Tue"),
-        (symbol: "4", label: "Wed"),
-        (symbol: "5", label: "Thu"),
-        (symbol: "6", label: "Fri"),
-        (symbol: "7", label: "Sat")
-    ]
+    private var weekdays: [(weekday: Int, label: String)] {
+        let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
+        return formatter.veryShortStandaloneWeekdaySymbols.enumerated().map { offset, label in
+            (weekday: offset + 1, label: label)
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -332,14 +330,13 @@ private struct TimeOfDayTriggerEditor: View {
             }
 
             HStack(spacing: 4) {
-                ForEach(Self.weekdays, id: \.label) { day in
-                    let weekdayIndex = Int(day.symbol) ?? 1
-                    let isOn = model.weekdays.contains(weekdayIndex)
+                ForEach(weekdays, id: \.weekday) { day in
+                    let isOn = model.weekdays.contains(day.weekday)
                     Button {
                         if isOn {
-                            model.weekdays.remove(weekdayIndex)
+                            model.weekdays.remove(day.weekday)
                         } else {
-                            model.weekdays.insert(weekdayIndex)
+                            model.weekdays.insert(day.weekday)
                         }
                         commit()
                     } label: {
@@ -437,7 +434,7 @@ private struct FrontmostAppTriggerEditor: View {
     }
 
     private var displayLabel: String {
-        if model.bundleIdentifier.isEmpty { return "Pick app…" }
+        if model.bundleIdentifier.isEmpty { return String(localized: "Pick app…") }
         if let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: model.bundleIdentifier) {
             return FileManager.default.displayName(atPath: app.path)
         }
@@ -503,7 +500,7 @@ private struct SpaceTriggerEditor: View {
     }
 
     private var displayLabel: String {
-        if model.bundleIdentifier.isEmpty { return "Pick app…" }
+        if model.bundleIdentifier.isEmpty { return String(localized: "Pick app…") }
         if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: model.bundleIdentifier) {
             return FileManager.default.displayName(atPath: url.path)
         }

@@ -390,3 +390,6 @@
 
 /* Class = "NSMenuItem"; title = "Show Substitutions"; ObjectID = "z6F-FW-3nz"; */
 "z6F-FW-3nz.title" = "Mostrar sustituciones";
+
+/* Class = "NSMenuItem"; title = "Check for Updates…"; ObjectID = "UpD-8y-1cW"; */
+"UpD-8y-1cW.title" = "Buscar actualizaciones…";

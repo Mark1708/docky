@@ -117,7 +117,7 @@ struct FolderPopoverView: View {
     private var openInFinderItem: FolderPopoverAction {
         FolderPopoverAction(
             id: "open-in-finder",
-            title: "Open in Finder",
+            title: String(localized: "Open in Finder"),
             systemImageName: "arrowshape.turn.up.right.circle"
         ) {
             openCurrentFolderInFinder()

@@ -36,7 +36,9 @@
         { "type": "divider" },
         {
           "type": "submenu",
+          "id": "app.options",
           "title": "Options",
+          "titleLocalizationKey": "catalog.menu.app.options.title",
           "children": [
             { "type": "action", "action": "app.toggle-pin" },
             { "type": "action", "action": "app.show-in-finder" }

@@ -40,16 +40,3 @@ struct WidgetSettingsField: Equatable, Codable, Identifiable {
     }
 }
 
-extension WidgetKind {
-    /// External widgets have settings iff their bundle shipped a non-empty manifest.
-    nonisolated var hasConfigurableSettings: Bool {
-        switch self {
-        case .weather, .calendar, .nowPlaying:
-            true
-        case .calendarDate, .reminders, .batteries, .systemStatus, .search, .photoFrame:
-            false
-        case .external(let identifier):
-            !(ExternalWidgetRegistry.shared.metadata(for: identifier)?.settingsSchema.isEmpty ?? true)
-        }
-    }
-}

@@ -38,7 +38,7 @@ struct HiddenAppsSettingsView: View {
             let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier)
             let displayName = appURL.map { FileManager.default.displayName(atPath: $0.path) } ?? bundleIdentifier
             let subtitle = appURL == nil
-                ? "\(bundleIdentifier) • App not currently found on disk"
+                ? String(localized: "\(bundleIdentifier) • App not currently found on disk")
                 : bundleIdentifier
 
             return HiddenAppSettingsEntry(

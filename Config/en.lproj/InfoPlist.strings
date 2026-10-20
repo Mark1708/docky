@@ -1,0 +1,8 @@
+"NSAppleEventsUsageDescription" = "Docky needs automation access to control Finder, System Events, and supported apps for file, menu, and window actions.";
+"NSCalendarsFullAccessUsageDescription" = "Docky uses calendar access to show your next upcoming event in the calendar widget.";
+"NSCalendarsUsageDescription" = "Docky uses calendar access to show your next upcoming event in the calendar widget.";
+"NSLocationWhenInUseUsageDescription" = "Docky uses your location to show local weather in the weather widget.";
+"NSRemindersFullAccessUsageDescription" = "Docky uses reminders access to show your open tasks in the reminders widget.";
+"NSRemindersUsageDescription" = "Docky uses reminders access to show your open tasks in the reminders widget.";
+"Docky Theme" = "Docky Theme";
+"Docky Widget Bundle" = "Docky Widget Bundle";

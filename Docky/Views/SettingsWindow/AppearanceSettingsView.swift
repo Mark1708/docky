@@ -142,7 +142,7 @@ struct AppearanceSettingsView: View {
                 value: $preferences.activeIndicatorOffset,
                 range: -20...20,
                 step: 1,
-                format: { "\(Int($0)) pt" },
+                format: { localizedPoints($0) },
                 description: "Shifts the indicator further from or closer to the screen edge."
             )
 
@@ -151,7 +151,7 @@ struct AppearanceSettingsView: View {
                 value: $preferences.activeIndicatorScale,
                 range: 0.5...2.0,
                 step: 0.05,
-                format: { String(format: "%.2fx", $0) },
+                format: { localizedScale($0) },
                 description: "Scales the indicator's rendered size."
             )
         }
@@ -214,7 +214,7 @@ struct AppearanceSettingsView: View {
             value: $preferences.dividerPaddingFraction,
             range: 0...0.5,
             step: 0.01,
-            format: { "\(Int(($0 * 100).rounded()))%" },
+            format: { localizedPercent($0) },
             description: "Controls how much each divider is inset along its short axis, as a fraction of the tile size."
         )
 
@@ -223,7 +223,7 @@ struct AppearanceSettingsView: View {
             value: $preferences.dividerOffset,
             range: -20...20,
             step: 1,
-            format: { "\(Int($0)) pt" },
+            format: { localizedPoints($0) },
             description: "Shifts dividers along the tile's short axis. Positive values move them up in horizontal docks or right in vertical docks."
         )
 
@@ -232,7 +232,7 @@ struct AppearanceSettingsView: View {
             value: $preferences.dividerImageScale,
             range: 0.5...2.0,
             step: 0.05,
-            format: { String(format: "%.2fx", $0) },
+            format: { localizedScale($0) },
             description: "Scales custom divider images. Has no effect on the default line."
         )
 
@@ -241,7 +241,7 @@ struct AppearanceSettingsView: View {
             value: $preferences.dividerOpacity,
             range: 0...1,
             step: 0.05,
-            format: { "\(Int(($0 * 100).rounded()))%" },
+            format: { localizedPercent($0) },
             description: "Controls how visible dividers are. 100% is fully opaque; 0% hides them entirely."
         )
 
@@ -272,14 +272,46 @@ struct AppearanceSettingsView: View {
             .accessibilityLabel("Alpha feature")
     }
 
+    private func localizedPoints(_ value: CGFloat) -> String {
+        String(
+            format: String(localized: "%lld pt"),
+            locale: .autoupdatingCurrent,
+            Int64(value.rounded())
+        )
+    }
+
+    private func localizedDecimalPoints(_ value: CGFloat) -> String {
+        String(
+            format: String(localized: "%.1f pt"),
+            locale: .autoupdatingCurrent,
+            value
+        )
+    }
+
+    private func localizedPercent(_ fraction: CGFloat) -> String {
+        String(
+            format: String(localized: "%lld%%"),
+            locale: .autoupdatingCurrent,
+            Int64((fraction * 100).rounded())
+        )
+    }
+
+    private func localizedScale(_ value: CGFloat) -> String {
+        String(
+            format: String(localized: "%.2f×"),
+            locale: .autoupdatingCurrent,
+            value
+        )
+    }
+
     @ViewBuilder
     private func sliderRow(
-        title: String,
+        title: LocalizedStringKey,
         value: Binding<CGFloat>,
         range: ClosedRange<CGFloat>,
         step: CGFloat,
         format: @escaping (CGFloat) -> String,
-        description: String
+        description: LocalizedStringKey
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
@@ -304,7 +336,7 @@ struct AppearanceSettingsView: View {
     }
 
     @ViewBuilder
-    private func dividerImageRow(title: String?, path: String?, onChoose: @escaping () -> Void, onClear: @escaping () -> Void) -> some View {
+    private func dividerImageRow(title: LocalizedStringKey?, path: String?, onChoose: @escaping () -> Void, onClear: @escaping () -> Void) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             if let title {
                 Text(title)
@@ -365,7 +397,7 @@ struct AppearanceSettingsView: View {
                         }
                         .labelsHidden()
 
-                        Text("\(Int(preferences.tileVerticalPadding)) pt")
+                        Text(localizedPoints(preferences.tileVerticalPadding))
                             .foregroundStyle(.secondary)
                             .frame(width: 48, alignment: .trailing)
                     }
@@ -389,7 +421,7 @@ struct AppearanceSettingsView: View {
                             Text("Tile Spacing")
                         }
                         .labelsHidden()
-                        Text("\(Int(preferences.tileSpacing)) pt")
+                        Text(localizedPoints(preferences.tileSpacing))
                             .foregroundStyle(.secondary)
                             .frame(width: 48, alignment: .trailing)
                     }
@@ -411,7 +443,7 @@ struct AppearanceSettingsView: View {
                     }
                     .labelsHidden()
 
-                    Text("\(Int(dockSettings.tileSize.rounded())) pt")
+                    Text(localizedPoints(dockSettings.tileSize))
                         .foregroundStyle(.secondary)
                         .frame(width: 48, alignment: .trailing)
                 }
@@ -434,7 +466,7 @@ struct AppearanceSettingsView: View {
                             Text("Tile Icon Padding")
                         }
                         .labelsHidden()
-                        Text("\(Int(preferences.effectiveTileIconPadding)) pt")
+                        Text(localizedPoints(preferences.effectiveTileIconPadding))
                             .foregroundStyle(.secondary)
                             .frame(width: 48, alignment: .trailing)
                     }
@@ -477,7 +509,7 @@ struct AppearanceSettingsView: View {
                         Text("Hover Background Opacity")
                     }
                     .labelsHidden()
-                    Text("\(Int((preferences.effectiveTileHoverBackgroundOpacity * 100).rounded()))%")
+                    Text(localizedPercent(preferences.effectiveTileHoverBackgroundOpacity))
                         .foregroundStyle(.secondary)
                         .frame(width: 56, alignment: .trailing)
                 }
@@ -489,7 +521,7 @@ struct AppearanceSettingsView: View {
                         Text("Hover Background Corner Radius")
                     }
                     .labelsHidden()
-                    Text("\(Int(preferences.effectiveTileHoverBackgroundCornerRadius)) pt")
+                    Text(localizedPoints(preferences.effectiveTileHoverBackgroundCornerRadius))
                         .foregroundStyle(.secondary)
                         .frame(width: 56, alignment: .trailing)
                 }
@@ -501,7 +533,7 @@ struct AppearanceSettingsView: View {
                         Text("Hover Scale")
                     }
                     .labelsHidden()
-                    Text(String(format: "%.2f×", preferences.effectiveTileHoverScale))
+                    Text(localizedScale(preferences.effectiveTileHoverScale))
                         .foregroundStyle(.secondary)
                         .frame(width: 56, alignment: .trailing)
                 }
@@ -512,7 +544,7 @@ struct AppearanceSettingsView: View {
                         Text("Hover Opacity")
                     }
                     .labelsHidden()
-                    Text("\(Int((preferences.effectiveTileHoverOpacity * 100).rounded()))%")
+                    Text(localizedPercent(preferences.effectiveTileHoverOpacity))
                         .foregroundStyle(.secondary)
                         .frame(width: 56, alignment: .trailing)
                 }
@@ -554,7 +586,7 @@ struct AppearanceSettingsView: View {
                         Text("Active Background Opacity")
                     }
                     .labelsHidden()
-                    Text("\(Int((preferences.effectiveTileActiveBackgroundOpacity * 100).rounded()))%")
+                    Text(localizedPercent(preferences.effectiveTileActiveBackgroundOpacity))
                         .foregroundStyle(.secondary)
                         .frame(width: 56, alignment: .trailing)
                 }
@@ -566,7 +598,7 @@ struct AppearanceSettingsView: View {
                         Text("Active Background Corner Radius")
                     }
                     .labelsHidden()
-                    Text("\(Int(preferences.effectiveTileActiveBackgroundCornerRadius)) pt")
+                    Text(localizedPoints(preferences.effectiveTileActiveBackgroundCornerRadius))
                         .foregroundStyle(.secondary)
                         .frame(width: 56, alignment: .trailing)
                 }
@@ -591,7 +623,7 @@ struct AppearanceSettingsView: View {
                             Text("Shadow Radius")
                         }
                         .labelsHidden()
-                        Text(String(format: "%.1f pt", preferences.effectiveIconShadowRadius))
+                        Text(localizedDecimalPoints(preferences.effectiveIconShadowRadius))
                             .foregroundStyle(.secondary)
                             .frame(width: 56, alignment: .trailing)
                     }
@@ -602,7 +634,7 @@ struct AppearanceSettingsView: View {
                             Text("Shadow Opacity")
                         }
                         .labelsHidden()
-                        Text("\(Int((preferences.effectiveIconShadowOpacity * 100).rounded()))%")
+                        Text(localizedPercent(preferences.effectiveIconShadowOpacity))
                             .foregroundStyle(.secondary)
                             .frame(width: 56, alignment: .trailing)
                     }
@@ -630,7 +662,7 @@ struct AppearanceSettingsView: View {
                         }
                         .labelsHidden()
 
-                        Text("\(Int(dockSettings.largeSize.rounded())) pt")
+                        Text(localizedPoints(dockSettings.largeSize))
                             .foregroundStyle(.secondary)
                             .frame(width: 48, alignment: .trailing)
                     }
@@ -681,7 +713,7 @@ struct AppearanceSettingsView: View {
                             Text("Window Corner Radius")
                         }
                         .labelsHidden()
-                        Text("\(Int(min(preferences.windowCornerRadius, maximumCornerRadius))) pt")
+                        Text(localizedPoints(min(preferences.windowCornerRadius, maximumCornerRadius)))
                             .foregroundStyle(.secondary)
                             .frame(width: 48, alignment: .trailing)
                     }
@@ -750,7 +782,7 @@ struct AppearanceSettingsView: View {
                             Text("Border Width")
                         }
                         .labelsHidden()
-                        Text(String(format: "%.1f pt", preferences.effectiveWindowBorderWidth))
+                        Text(localizedDecimalPoints(preferences.effectiveWindowBorderWidth))
                             .foregroundStyle(.secondary)
                             .frame(width: 56, alignment: .trailing)
                     }
@@ -798,7 +830,7 @@ struct AppearanceSettingsView: View {
 
     @ViewBuilder
     private func widgetSpanBlock(
-        title: String,
+        title: LocalizedStringKey,
         paddingBinding: Binding<CGFloat?>,
         radiusBinding: Binding<CGFloat?>,
         effectivePadding: CGFloat?,
@@ -825,7 +857,7 @@ struct AppearanceSettingsView: View {
 
     @ViewBuilder
     private func widgetOverrideRow(
-        label: String,
+        label: LocalizedStringKey,
         binding: Binding<CGFloat?>,
         effective: CGFloat?,
         range: ClosedRange<Double>
@@ -848,6 +880,10 @@ struct AppearanceSettingsView: View {
             get: { Double(binding.wrappedValue ?? effective ?? 0) },
             set: { binding.wrappedValue = CGFloat($0) }
         )
+        let displayedValue = isOverriding.wrappedValue
+            ? localizedPoints(CGFloat(sliderValue.wrappedValue))
+            : effective.map(localizedPoints) ?? String(localized: "Inherited")
+
         HStack {
             Toggle(isOn: isOverriding) {
                 Text(label).frame(width: 140, alignment: .leading)
@@ -858,11 +894,11 @@ struct AppearanceSettingsView: View {
             }
             .labelsHidden()
             .disabled(!isOverriding.wrappedValue)
-            Text(isOverriding.wrappedValue
-                 ? "\(Int(sliderValue.wrappedValue)) pt"
-                 : (effective.map { "\(Int($0)) pt" } ?? "inherited"))
+            Text(displayedValue)
                 .foregroundStyle(.secondary)
-                .frame(width: 80, alignment: .trailing)
+                .frame(minWidth: 64, alignment: .trailing)
+                .lineLimit(1)
+                .layoutPriority(1)
         }
     }
 
@@ -937,7 +973,7 @@ struct AppearanceSettingsView: View {
                     Slider(value: windowTintOpacityBinding, in: 0...1, step: 0.01) {
                         Text("Window Tint Opacity")
                     }
-                    Text("\(Int(preferences.effectiveWindowTintOpacity * 100))%")
+                    Text(localizedPercent(preferences.effectiveWindowTintOpacity))
                         .foregroundStyle(.secondary)
                         .frame(width: 48, alignment: .trailing)
                 }
@@ -991,9 +1027,9 @@ struct AppearanceSettingsView: View {
     private var windowCornerRadiusDescription: String {
         switch preferences.windowClipShape {
         case .rounded:
-            "Controls the roundness of the main dock window and its border, up to a full capsule."
+            String(localized: "Controls the roundness of the main dock window and its border, up to a full capsule.")
         case .circle:
-            "Circle mode uses the maximum radius automatically, so square chrome becomes circular and wider chrome becomes a capsule."
+            String(localized: "Circle mode uses the maximum radius automatically, so square chrome becomes circular and wider chrome becomes a capsule.")
         }
     }
 
@@ -1168,7 +1204,7 @@ struct AppearanceSettingsView: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-        panel.prompt = "Choose Image"
+        panel.prompt = String(localized: "Choose Image")
 
         guard panel.runModal() == .OK, let url = panel.url else {
             return
@@ -1183,7 +1219,7 @@ struct AppearanceSettingsView: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-        panel.prompt = "Choose Image"
+        panel.prompt = String(localized: "Choose Image")
 
         guard panel.runModal() == .OK, let url = panel.url else {
             return
@@ -1198,7 +1234,7 @@ struct AppearanceSettingsView: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-        panel.prompt = "Choose Image"
+        panel.prompt = String(localized: "Choose Image")
 
         guard panel.runModal() == .OK, let url = panel.url else {
             return
@@ -1266,7 +1302,7 @@ struct AppearanceSettingsView: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-        panel.prompt = "Choose Image"
+        panel.prompt = String(localized: "Choose Image")
 
         guard panel.runModal() == .OK, let url = panel.url else {
             return
@@ -1344,7 +1380,7 @@ struct AppearanceSettingsView: View {
 
     @ViewBuilder
     private func cornerRadiusRow(
-        label: String,
+        label: LocalizedStringKey,
         binding: Binding<CGFloat?>,
         effective: CGFloat
     ) -> some View {
@@ -1378,14 +1414,14 @@ struct AppearanceSettingsView: View {
             }
             .labelsHidden()
             .disabled(!usesOverride.wrappedValue)
-            Text("\(Int(effective)) pt")
+            Text(localizedPoints(effective))
                 .foregroundStyle(.secondary)
                 .frame(width: 48, alignment: .trailing)
         }
     }
 
     @ViewBuilder
-    private func contentInsetRow(label: String, value: Binding<CGFloat>) -> some View {
+    private func contentInsetRow(label: LocalizedStringKey, value: Binding<CGFloat>) -> some View {
         HStack {
             Text(label).frame(width: 120, alignment: .leading)
             Slider(value: Binding(
@@ -1395,7 +1431,7 @@ struct AppearanceSettingsView: View {
                 Text(label)
             }
             .labelsHidden()
-            Text("\(Int(value.wrappedValue)) pt")
+            Text(localizedPoints(value.wrappedValue))
                 .foregroundStyle(.secondary)
                 .frame(width: 48, alignment: .trailing)
         }
@@ -1411,7 +1447,7 @@ struct AppearanceSettingsView: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-        panel.prompt = "Choose Image"
+        panel.prompt = String(localized: "Choose Image")
 
         guard panel.runModal() == .OK, let url = panel.url else {
             return

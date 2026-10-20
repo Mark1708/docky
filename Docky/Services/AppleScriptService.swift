@@ -181,19 +181,22 @@ final class AppleScriptService {
         case .permissionDenied:
             PermissionsService.shared.updateFinderAutomation(status: .denied)
             presentAlert(
-                title: "Finder automation wasn’t allowed",
-                body: "Allow Docky to control Finder in Privacy & Security > Automation, or use the Automation (Finder) row in Docky Settings to request access again."
+                title: String(localized: "Finder automation wasn’t allowed"),
+                body: String(localized: "Allow Docky to control Finder in Privacy & Security > Automation, or use the Automation (Finder) row in Docky Settings to request access again.")
             )
         case .accessibilityDenied:
-            PermissionsService.shared.presentPermissionAlert(for: .accessibility, actionTitle: "Finder action")
+            PermissionsService.shared.presentPermissionAlert(
+                for: .accessibility,
+                actionTitle: String(localized: "Finder action")
+            )
         case .compilationFailed:
             presentAlert(
-                title: "Finder action failed",
-                body: "Docky couldn't prepare the AppleScript needed for this Finder action."
+                title: String(localized: "Finder action failed"),
+                body: String(localized: "Docky couldn't prepare the AppleScript needed for this Finder action.")
             )
         case .executionFailed(let message):
             presentAlert(
-                title: "Finder action failed",
+                title: String(localized: "Finder action failed"),
                 body: message
             )
         }
@@ -222,7 +225,7 @@ final class AppleScriptService {
 
             if permissionRequirements.contains(.finderAutomation) {
                 presentAutomationAlert(
-                    targetApp: targetApp ?? "the target app",
+                    targetApp: targetApp ?? String(localized: "the target app"),
                     actionTitle: actionTitle,
                     includesSystemEvents: false
                 )
@@ -234,20 +237,28 @@ final class AppleScriptService {
                 )
             } else {
                 presentAlert(
-                    title: "Script action wasn’t allowed",
-                    body: "macOS blocked \(actionTitle.lowercased())."
+                    title: String(localized: "Script action wasn’t allowed"),
+                    body: String(
+                        format: String(localized: "macOS blocked %@."),
+                        locale: .autoupdatingCurrent,
+                        actionTitle.lowercased()
+                    )
                 )
             }
         case .accessibilityDenied:
             PermissionsService.shared.presentPermissionAlert(for: .accessibility, actionTitle: actionTitle)
         case .compilationFailed:
             presentAlert(
-                title: "Script action failed",
-                body: "Docky couldn't prepare the AppleScript needed for \(actionTitle.lowercased())."
+                title: String(localized: "Script action failed"),
+                body: String(
+                    format: String(localized: "Docky couldn't prepare the AppleScript needed for %@."),
+                    locale: .autoupdatingCurrent,
+                    actionTitle.lowercased()
+                )
             )
         case .executionFailed(let message):
             presentAlert(
-                title: "Script action failed",
+                title: String(localized: "Script action failed"),
                 body: message
             )
         }
@@ -299,12 +310,14 @@ final class AppleScriptService {
         if includesSystemEvents {
             alert.informativeText = String(
                 format: String(localized: "Allow Docky to control System Events and %1$@ in Privacy & Security > Automation, then try %2$@ again."),
+                locale: .autoupdatingCurrent,
                 appName,
                 actionTitle.lowercased()
             )
         } else {
             alert.informativeText = String(
                 format: String(localized: "Allow Docky to control %1$@ in Privacy & Security > Automation, then try %2$@ again."),
+                locale: .autoupdatingCurrent,
                 appName,
                 actionTitle.lowercased()
             )
@@ -322,19 +335,22 @@ final class AppleScriptService {
         case .permissionDenied:
             PermissionsService.shared.updateSystemEventsAutomation(status: .denied)
             presentAlert(
-                title: "System Events automation wasn’t allowed",
-                body: "Allow Docky to control System Events in Privacy & Security > Automation, or use the Automation (System Events) row in Docky Settings to request access again."
+                title: String(localized: "System Events automation wasn’t allowed"),
+                body: String(localized: "Allow Docky to control System Events in Privacy & Security > Automation, or use the Automation (System Events) row in Docky Settings to request access again.")
             )
         case .accessibilityDenied:
-            PermissionsService.shared.presentPermissionAlert(for: .accessibility, actionTitle: "Request System Events Access")
+            PermissionsService.shared.presentPermissionAlert(
+                for: .accessibility,
+                actionTitle: String(localized: "Request System Events Access")
+            )
         case .compilationFailed:
             presentAlert(
-                title: "System Events action failed",
-                body: "Docky couldn't prepare the AppleScript needed to request System Events automation."
+                title: String(localized: "System Events action failed"),
+                body: String(localized: "Docky couldn't prepare the AppleScript needed to request System Events automation.")
             )
         case .executionFailed(let message):
             presentAlert(
-                title: "System Events action failed",
+                title: String(localized: "System Events action failed"),
                 body: message
             )
         }

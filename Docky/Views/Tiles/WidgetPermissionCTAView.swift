@@ -89,27 +89,27 @@ struct WidgetPermissionCTAView: View {
     private var buttonTitle: String {
         switch status {
         case .denied:
-            return "Open Settings"
+            String(localized: "Open Settings")
         case .notDetermined, .granted:
-            return enableTitle
+            enableTitle
         }
     }
 
     private var enableTitle: String {
         switch permission {
-        case .location: return "Enable Location"
-        case .calendar: return "Enable Calendar"
-        case .reminders: return "Enable Reminders"
-        default: return "Enable Access"
+        case .location: String(localized: "Enable Location")
+        case .calendar: String(localized: "Enable Calendar")
+        case .reminders: String(localized: "Enable Reminders")
+        default: String(localized: "Enable Access")
         }
     }
 
     private var reasonText: String {
         switch permission {
-        case .location: return "Show local weather in the dock."
-        case .calendar: return "Show your upcoming events."
-        case .reminders: return "Show your open tasks."
-        default: return permission.explanation
+        case .location: String(localized: "permissions.location.reason", defaultValue: "Show local weather in the dock.")
+        case .calendar: String(localized: "Show your upcoming events.")
+        case .reminders: String(localized: "Show your open tasks.")
+        default: permission.explanation
         }
     }
 

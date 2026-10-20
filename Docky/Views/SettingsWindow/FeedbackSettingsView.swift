@@ -2,23 +2,19 @@
 //  FeedbackSettingsView.swift
 //  Docky
 //
-//  Lets the user submit a textual report along with a self-contained
-//  diagnostic zip. The zip bundles every `docky.*` UserDefaults key,
-//  the live `com.apple.dock` plist, basic system specs, and an
-//  optional user-picked asset (screenshot / screen recording).
-//
-//  Delivery is via macOS's built-in share sheet, `NSSharingService`
-//  composed for email when Mail.app is configured, otherwise a
-//  picker (`NSSharingServicePicker`) so the user can route through
-//  Messages / AirDrop / Files / etc. Zero backend; the only cost is
-//  the user pressing "Send" in whichever app they pick.
+//  Lets the user prepare a textual report and self-contained diagnostic zip.
+//  The zip bundles every `docky.*` UserDefaults key, the live
+//  `com.apple.dock` plist, basic system specs, and an optional user-picked
+//  asset. Docky reveals the archive in Finder and opens a prefilled issue in
+//  the fork's GitHub repository; the user reviews the report and attaches the
+//  archive manually.
 //
 
 import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
 
-private let feedbackDestinationEmail = "hello@quintero.gt"
+private let feedbackIssueURL = URL(string: "https://github.com/Mark1708/docky/issues/new")!
 
 struct FeedbackSettingsView: View {
     @State private var feedbackText: String = ""
@@ -30,7 +26,7 @@ struct FeedbackSettingsView: View {
         Form {
             Section("What's going on?") {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Describe the issue, idea, or feedback. The diagnostic bundle below is attached automatically so the maintainer can replicate your setup.")
+                    Text("Describe the issue, idea, or feedback. Docky creates a diagnostic bundle and reveals it in Finder so you can attach it to the GitHub issue.")
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                     TextEditor(text: $feedbackText)
@@ -78,7 +74,7 @@ struct FeedbackSettingsView: View {
                 .padding(.vertical, 4)
             }
 
-            Section("What gets sent") {
+            Section("What the diagnostic bundle contains") {
                 VStack(alignment: .leading, spacing: 4) {
                     Label("Your message", systemImage: "text.alignleft")
                     Label("Docky preferences (every `docky.*` UserDefaults key)", systemImage: "doc.text")
@@ -101,7 +97,7 @@ struct FeedbackSettingsView: View {
                             .font(.caption)
                     }
                     Spacer()
-                    Button("Send Feedback") { sendFeedback() }
+                    Button("Open GitHub Issue") { sendFeedback() }
                         .keyboardShortcut(.defaultAction)
                         .disabled(isPreparing || feedbackText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
@@ -116,7 +112,7 @@ struct FeedbackSettingsView: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-        panel.prompt = "Attach"
+        panel.prompt = String(localized: "Attach")
         guard panel.runModal() == .OK, let url = panel.url else { return }
         attachmentURL = url
     }
@@ -131,30 +127,32 @@ struct FeedbackSettingsView: View {
                 feedbackText: feedbackText,
                 attachmentURL: attachmentURL
             )
-            present(items: [feedbackText as NSString, bundleURL as NSURL])
+            openIssue(bundleURL: bundleURL)
         } catch {
             errorMessage = "Could not build feedback bundle: \(error.localizedDescription)"
         }
     }
 
-    /// Tries `NSSharingService.composeEmail` first (one-click into
-    /// Mail.app with our address pre-filled). Falls back to a generic
-    /// `NSSharingServicePicker` if Mail.app isn't configured.
-    private func present(items: [Any]) {
-        let subject = "Docky Feedback (v\(Bundle.main.shortVersion))"
-        if let mail = NSSharingService(named: .composeEmail) {
-            mail.recipients = [feedbackDestinationEmail]
-            mail.subject = subject
-            mail.perform(withItems: items)
+    private func openIssue(bundleURL: URL) {
+        NSWorkspace.shared.activateFileViewerSelecting([bundleURL])
+
+        let subject = "Docky feedback (v\(Bundle.main.shortVersion))"
+        let body = """
+        ### Description
+        \(feedbackText)
+
+        ### Diagnostics
+        Attach `\(bundleURL.lastPathComponent)` from the Finder window opened by Docky.
+        """
+        var components = URLComponents(url: feedbackIssueURL, resolvingAgainstBaseURL: false)
+        components?.queryItems = [
+            URLQueryItem(name: "title", value: subject),
+            URLQueryItem(name: "body", value: body),
+        ]
+        guard let issueURL = components?.url, NSWorkspace.shared.open(issueURL) else {
+            errorMessage = String(localized: "Could not open GitHub. The diagnostic bundle is available in Finder for manual attachment.")
             return
         }
-        guard let window = NSApp.keyWindow ?? NSApp.windows.first else { return }
-        let picker = NSSharingServicePicker(items: items)
-        picker.show(
-            relativeTo: .zero,
-            of: window.contentView ?? NSView(),
-            preferredEdge: .minY
-        )
     }
 }
 

@@ -32,7 +32,11 @@ final class MenuCatalogService: ObservableObject {
             let menusDocument: CatalogMenusDocument = try loadJSON(named: "menus", subdirectory: "MenuCatalog")
             apply(actionsDocument: actionsDocument, menusDocument: menusDocument)
         } catch {
-            diagnostics = ["Failed to load menu catalog: \(error.localizedDescription)"]
+            diagnostics = [catalogFormat(
+                key: "catalog.diagnostic.load-failed",
+                fallback: "Failed to load menu catalog: %@",
+                error.localizedDescription
+            )]
             logDiagnostics()
         }
     }
@@ -47,7 +51,11 @@ final class MenuCatalogService: ObservableObject {
 
         let tileType = tileType(for: tile)
         guard let menu = menusByTileType[tileType] else {
-            record("Missing menu definition for tile type '\(tileType.rawValue)'.")
+            record(catalogFormat(
+                key: "catalog.diagnostic.missing-menu",
+                fallback: "Missing menu definition for tile type '%@'.",
+                tileType.rawValue
+            ))
             return nil
         }
 
@@ -62,22 +70,37 @@ final class MenuCatalogService: ObservableObject {
         for package in actionsDocument.packages {
             packageSummaries.append(CatalogPackageSummary(
                 id: package.id,
-                title: package.title,
+                title: catalogString(key: package.titleLocalizationKey, fallback: package.title),
                 author: package.author,
                 version: package.version,
-                reviewStatus: package.reviewStatus,
-                description: package.description,
+                reviewStatus: catalogString(
+                    key: "catalog.review-status.\(package.reviewStatus)",
+                    fallback: package.reviewStatus
+                ),
+                description: package.description.map {
+                    catalogString(key: package.descriptionLocalizationKey, fallback: $0)
+                },
                 actionCount: package.actions.count
             ))
 
             for action in package.actions {
                 if resolvedActions[action.id] != nil {
-                    localDiagnostics.append("Duplicate action id '\(action.id)' in package '\(package.id)'.")
+                    localDiagnostics.append(catalogFormat(
+                        key: "catalog.diagnostic.duplicate-action",
+                        fallback: "Duplicate action id '%1$@' in package '%2$@'.",
+                        action.id,
+                        package.id
+                    ))
                     continue
                 }
 
                 if let error = validate(action: action) {
-                    localDiagnostics.append("Action '\(action.id)' rejected: \(error)")
+                    localDiagnostics.append(catalogFormat(
+                        key: "catalog.diagnostic.action-rejected",
+                        fallback: "Action '%1$@' rejected: %2$@",
+                        action.id,
+                        error
+                    ))
                     continue
                 }
 
@@ -88,12 +111,21 @@ final class MenuCatalogService: ObservableObject {
         var resolvedMenus: [MenuTileType: CatalogMenuDefinition] = [:]
         for menu in menusDocument.menus {
             if resolvedMenus[menu.tileType] != nil {
-                localDiagnostics.append("Duplicate menu definition for tile type '\(menu.tileType.rawValue)'.")
+                localDiagnostics.append(catalogFormat(
+                    key: "catalog.diagnostic.duplicate-menu",
+                    fallback: "Duplicate menu definition for tile type '%@'.",
+                    menu.tileType.rawValue
+                ))
                 continue
             }
 
             if let error = validate(menu: menu, actionsByID: resolvedActions) {
-                localDiagnostics.append("Menu '\(menu.tileType.rawValue)' rejected: \(error)")
+                localDiagnostics.append(catalogFormat(
+                    key: "catalog.diagnostic.menu-rejected",
+                    fallback: "Menu '%1$@' rejected: %2$@",
+                    menu.tileType.rawValue,
+                    error
+                ))
                 continue
             }
 
@@ -110,7 +142,18 @@ final class MenuCatalogService: ObservableObject {
         let url = Bundle.main.url(forResource: name, withExtension: "json", subdirectory: subdirectory)
             ?? Bundle.main.url(forResource: name, withExtension: "json")
         guard let url else {
-            throw NSError(domain: "MenuCatalogService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Missing resource \(subdirectory)/\(name).json"])
+            throw NSError(
+                domain: "MenuCatalogService",
+                code: 1,
+                userInfo: [
+                    NSLocalizedDescriptionKey: catalogFormat(
+                        key: "catalog.diagnostic.missing-resource",
+                        fallback: "Missing resource %1$@/%2$@.json",
+                        subdirectory,
+                        name
+                    )
+                ]
+            )
         }
         let data = try Data(contentsOf: url)
         return try decoder.decode(T.self, from: data)
@@ -120,27 +163,46 @@ final class MenuCatalogService: ObservableObject {
         switch action.kind {
         case .builtin:
             guard let builtinIdentifier = action.builtinIdentifier, BuiltinAction(rawValue: builtinIdentifier) != nil else {
-                return "unknown builtin identifier"
+                return catalogString(
+                    key: "catalog.validation.unknown-builtin",
+                    fallback: "unknown builtin identifier"
+                )
             }
         case .applescript:
             guard let targetApp = action.targetApp, !targetApp.isEmpty else {
-                return "AppleScript actions require targetApp"
+                return catalogString(
+                    key: "catalog.validation.applescript-requires-target-app",
+                    fallback: "AppleScript actions require targetApp"
+                )
             }
             guard let script = action.script, !script.isEmpty else {
-                return "AppleScript actions require script"
+                return catalogString(
+                    key: "catalog.validation.applescript-requires-script",
+                    fallback: "AppleScript actions require script"
+                )
             }
             let placeholders = Set(script.placeholders)
             let declaredInputs = Set(action.inputs.map(\.rawValue))
             let unknownPlaceholders = placeholders.subtracting(declaredInputs)
             if !unknownPlaceholders.isEmpty {
-                return "unknown placeholders: \(unknownPlaceholders.sorted().joined(separator: ", "))"
+                return catalogFormat(
+                    key: "catalog.validation.unknown-placeholders",
+                    fallback: "unknown placeholders: %@",
+                    unknownPlaceholders.sorted().joined(separator: ", ")
+                )
             }
         case .menuClick:
             guard let targetApp = action.targetApp, !targetApp.isEmpty else {
-                return "menuClick actions require targetApp"
+                return catalogString(
+                    key: "catalog.validation.menuclick-requires-target-app",
+                    fallback: "menuClick actions require targetApp"
+                )
             }
             guard let path = action.path, !path.isEmpty else {
-                return "menuClick actions require a non-empty path"
+                return catalogString(
+                    key: "catalog.validation.menuclick-requires-path",
+                    fallback: "menuClick actions require a non-empty path"
+                )
             }
         }
 
@@ -156,25 +218,50 @@ final class MenuCatalogService: ObservableObject {
             switch item.type {
             case .action:
                 guard let actionID = item.action, let action = actionsByID[actionID] else {
-                    return "references unknown action id '\(item.action ?? "")'"
+                    return catalogFormat(
+                        key: "catalog.validation.menu-references-unknown-action",
+                        fallback: "references unknown action id '%@'",
+                        item.action ?? ""
+                    )
                 }
                 guard action.tileTypes.contains(tileType) else {
-                    return "action '\(actionID)' does not support tile type '\(tileType.rawValue)'"
+                    return catalogFormat(
+                        key: "catalog.validation.menu-action-unsupported-tile",
+                        fallback: "action '%1$@' does not support tile type '%2$@'",
+                        actionID,
+                        tileType.rawValue
+                    )
                 }
                 if let alternateActionID = item.alternateAction {
                     guard let alternateAction = actionsByID[alternateActionID] else {
-                        return "references unknown alternate action id '\(alternateActionID)'"
+                        return catalogFormat(
+                            key: "catalog.validation.menu-references-unknown-alternate-action",
+                            fallback: "references unknown alternate action id '%@'",
+                            alternateActionID
+                        )
                     }
                     guard alternateAction.tileTypes.contains(tileType) else {
-                        return "alternate action '\(alternateActionID)' does not support tile type '\(tileType.rawValue)'"
+                        return catalogFormat(
+                            key: "catalog.validation.menu-alternate-action-unsupported-tile",
+                            fallback: "alternate action '%1$@' does not support tile type '%2$@'",
+                            alternateActionID,
+                            tileType.rawValue
+                        )
                     }
                 }
             case .submenu:
                 guard let title = item.title, !title.isEmpty else {
-                    return "submenu is missing title"
+                    return catalogString(
+                        key: "catalog.validation.submenu-missing-title",
+                        fallback: "submenu is missing title"
+                    )
                 }
                 guard let children = item.children, !children.isEmpty else {
-                    return "submenu '\(title)' is empty"
+                    return catalogFormat(
+                        key: "catalog.validation.submenu-empty",
+                        fallback: "submenu '%@' is empty",
+                        catalogString(key: item.titleLocalizationKey, fallback: title)
+                    )
                 }
                 if let error = validate(menuItems: children, tileType: tileType, actionsByID: actionsByID) {
                     return error
@@ -204,7 +291,11 @@ final class MenuCatalogService: ObservableObject {
                 guard let title = item.title, let children = item.children else { continue }
                 let submenuItems = buildMenuItems(from: children, context: context)
                 guard !submenuItems.isEmpty else { continue }
-                resolved.append(.submenu(title, children: submenuItems))
+                resolved.append(.submenu(
+                    catalogString(key: item.titleLocalizationKey, fallback: title),
+                    sourceID: item.id,
+                    children: submenuItems
+                ))
             case .action:
                 let resolvedActionID: String
                 if let alternateActionID = item.alternateAction,
@@ -223,14 +314,19 @@ final class MenuCatalogService: ObservableObject {
                     continue
                 }
 
+                let actionTitle = resolvedTitle(for: definition, context: context)
                 resolved.append(ContextAction.action(
-                    resolvedTitle(for: definition, context: context),
+                    actionTitle,
                     image: symbolImage(for: definition.symbol),
                     isDestructive: definition.destructive || (definition.destructiveWhen?.evaluate(in: context) ?? false),
                     isOn: definition.toggleFlag.map { context.value(for: $0) } ?? false
                 ) {
                     Task {
-                        await ActionExecutionService.shared.perform(action: definition, context: context)
+                        await ActionExecutionService.shared.perform(
+                            action: definition,
+                            context: context,
+                            actionTitle: actionTitle
+                        )
                     }
                 })
             }
@@ -251,9 +347,35 @@ final class MenuCatalogService: ObservableObject {
     private func resolvedTitle(for action: CatalogActionDefinition, context: CatalogActionContext) -> String {
         if let alternateTitle = action.alternateTitle,
            action.alternateTitleWhen?.evaluate(in: context) == true {
-            return alternateTitle
+            return catalogString(
+                key: action.alternateTitleLocalizationKey,
+                fallback: alternateTitle
+            )
         }
-        return action.title
+        return catalogString(key: action.titleLocalizationKey, fallback: action.title)
+    }
+
+    private func catalogString(key: String?, fallback: String) -> String {
+        guard let key, !key.isEmpty else {
+            return fallback
+        }
+        return AppLocalization.string(
+            key: key,
+            fallback: fallback,
+            table: "MenuCatalog"
+        )
+    }
+
+    private func catalogFormat(
+        key: String,
+        fallback: String,
+        _ arguments: CVarArg...
+    ) -> String {
+        String(
+            format: catalogString(key: key, fallback: fallback),
+            locale: .autoupdatingCurrent,
+            arguments: arguments
+        )
     }
 
     private func makeContext(for tile: Tile, modifierFlags: NSEvent.ModifierFlags) -> CatalogActionContext {

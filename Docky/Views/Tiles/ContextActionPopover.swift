@@ -18,6 +18,7 @@ struct ContextAction: Identifiable {
 
     let id = UUID()
     let kind: Kind
+    let sourceID: String?
     let title: String
     let image: NSImage?
     let customView: NSView?
@@ -36,6 +37,7 @@ struct ContextAction: Identifiable {
     ) -> Self {
         Self(
             kind: .action,
+            sourceID: nil,
             title: title,
             image: image,
             customView: nil,
@@ -47,9 +49,14 @@ struct ContextAction: Identifiable {
         )
     }
 
-    static func submenu(_ title: String, children: [ContextAction]) -> Self {
+    static func submenu(
+        _ title: String,
+        sourceID: String? = nil,
+        children: [ContextAction]
+    ) -> Self {
         Self(
             kind: .submenu,
+            sourceID: sourceID,
             title: title,
             image: nil,
             customView: nil,
@@ -68,6 +75,7 @@ struct ContextAction: Identifiable {
     ) -> Self {
         Self(
             kind: .lazySubmenu,
+            sourceID: nil,
             title: title,
             image: image,
             customView: nil,
@@ -82,6 +90,7 @@ struct ContextAction: Identifiable {
     static func customView(_ view: NSView) -> Self {
         Self(
             kind: .customView,
+            sourceID: nil,
             title: "",
             image: nil,
             customView: view,
@@ -96,6 +105,7 @@ struct ContextAction: Identifiable {
     static var divider: Self {
         Self(
             kind: .divider,
+            sourceID: nil,
             title: "",
             image: nil,
             customView: nil,

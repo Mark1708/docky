@@ -686,10 +686,14 @@ enum ThemeExportError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidName(let name):
-            return "The name \"\(name)\" can't be used as a theme identifier."
+            return String(format: String(localized: "The name \"%@\" can't be used as a theme identifier."), name)
         case .archiveFailed(let status, let stderr):
             let detail = stderr.isEmpty ? "" : " (\(stderr.trimmingCharacters(in: .whitespacesAndNewlines)))"
-            return "Failed to write theme archive (exit \(status))\(detail)."
+            return String(
+                format: String(localized: "Failed to write theme archive (exit %d)%@."),
+                status,
+                detail
+            )
         }
     }
 }
@@ -704,13 +708,23 @@ enum ThemeImportError: LocalizedError {
         switch self {
         case .extractionFailed(let status, let stderr):
             let detail = stderr.isEmpty ? "" : " (\(stderr.trimmingCharacters(in: .whitespacesAndNewlines)))"
-            return "Failed to extract theme archive (exit \(status))\(detail)."
+            return String(
+                format: String(localized: "Failed to extract theme archive (exit %d)%@."),
+                status,
+                detail
+            )
         case .missingManifest:
-            return "The theme archive does not contain a theme.json manifest."
+            return String(localized: "The theme archive does not contain a theme.json manifest.")
         case .invalidManifest(let underlying):
-            return "The theme manifest is invalid: \(underlying.localizedDescription)"
+            return String(
+                format: String(localized: "The theme manifest is invalid: %@"),
+                underlying.localizedDescription
+            )
         case .invalidID(let id):
-            return "The theme manifest id \"\(id)\" is not a valid identifier."
+            return String(
+                format: String(localized: "The theme manifest id \"%@\" is not a valid identifier."),
+                id
+            )
         }
     }
 }

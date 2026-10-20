@@ -15,6 +15,10 @@ import UniformTypeIdentifiers
 @main
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 
+    static var isRunningTests: Bool {
+        ProcessInfo.processInfo.environment["DOCKY_TEST_MODE"] == "1"
+    }
+
     @IBOutlet var window: NSWindow!
     private var mainWindowController: MainWindowController?
     private var permissionsWindowController: PermissionsWindowController?
@@ -25,6 +29,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     private var debugSnapshotCancellables = Set<AnyCancellable>()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        guard !Self.isRunningTests else {
+            return
+        }
+
         // Bound every AX call to 1s so a hung app can't stall the main run loop.
         // Must precede any other AX work — applies process-wide.
         AXUIElementSetMessagingTimeout(AXUIElementCreateSystemWide(), 1.0)
@@ -38,10 +46,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             return
         }
 
-        _ = AppUpdateService.shared
+        let appUpdateService = AppUpdateService.shared
         _ = LaunchpadHotKeyService.shared
         _ = LaunchpadOverlayService.shared
-        AppUpdateService.shared.checkForUpdatesInBackground()
+        if appUpdateService.isAvailable {
+            appUpdateService.checkForUpdatesInBackground()
+        }
         WindowReservationService.shared.start()
         DockBadgeService.shared.start()
 
@@ -109,10 +119,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 
         if let firstError {
             let alert = NSAlert()
-            alert.messageText = "Could not import theme"
+            alert.messageText = String(localized: "Could not import theme")
             alert.informativeText = firstError
             alert.alertStyle = .warning
-            alert.addButton(withTitle: "OK")
+            alert.addButton(withTitle: String(localized: "OK"))
             alert.runModal()
         }
     }
@@ -257,17 +267,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
                 try? FileManager.default.removeItem(at: staged.deletingLastPathComponent())
 
                 let alert = NSAlert()
-                alert.messageText = "Widget installed"
-                alert.informativeText = "Restart Docky to start using \(downloadURL.lastPathComponent)."
+                alert.messageText = String(localized: "Widget installed")
+                alert.informativeText = String(
+                    format: String(localized: "Restart Docky to start using %@."),
+                    downloadURL.lastPathComponent
+                )
                 alert.alertStyle = .informational
-                alert.addButton(withTitle: "Restart Docky")
-                alert.addButton(withTitle: "Later")
+                alert.addButton(withTitle: String(localized: "Restart Docky"))
+                alert.addButton(withTitle: String(localized: "Later"))
                 if alert.runModal() == .alertFirstButtonReturn {
                     NSApp.terminate(nil)
                 }
             } catch {
                 presentInstallAlert(
-                    title: "Couldn't install widget",
+                    title: String(localized: "Couldn't install widget"),
                     message: (error as? LocalizedError)?.errorDescription ?? error.localizedDescription,
                     style: .warning
                 )
@@ -279,11 +292,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     /// user to the toggle rather than silently doing nothing.
     private func presentLinkInstallsDisabledAlert() {
         let alert = NSAlert()
-        alert.messageText = "Installing widgets from links is off"
-        alert.informativeText = "For safety, Docky won't install a widget from a link until you turn this on in Settings › Widget Store."
+        alert.messageText = String(localized: "Installing widgets from links is off")
+        alert.informativeText = String(localized: "For safety, Docky won't install a widget from a link until you turn this on in Settings › Widget Store.")
         alert.alertStyle = .informational
-        alert.addButton(withTitle: "Open Settings")
-        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: String(localized: "Open Settings"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
         if alert.runModal() == .alertFirstButtonReturn {
             SettingsNavigator.shared.requestPane(id: "externalWidgets")
         }
@@ -293,11 +306,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     /// install is always a deliberate choice.
     private func confirmLinkInstall(host: String) -> Bool {
         let alert = NSAlert()
-        alert.messageText = "Install a widget from “\(host)”?"
-        alert.informativeText = "Widgets are native plugins that run inside Docky with the same access Docky has — Accessibility, Automation, files, and more. Docky can't verify what a widget does. Only continue if you trust this source."
+        alert.messageText = String(
+            format: String(localized: "Install a widget from “%@”?"),
+            host
+        )
+        alert.informativeText = String(localized: "Widgets are native plugins that run inside Docky with the same access Docky has — Accessibility, Automation, files, and more. Docky can't verify what a widget does. Only continue if you trust this source.")
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "Cancel")
-        alert.addButton(withTitle: "Download & Install")
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        alert.addButton(withTitle: String(localized: "Download & Install"))
         return alert.runModal() == .alertSecondButtonReturn
     }
 
@@ -306,11 +322,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         alert.messageText = title
         alert.informativeText = message
         alert.alertStyle = style
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: String(localized: "OK"))
         alert.runModal()
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
+        guard !Self.isRunningTests else {
+            return
+        }
+
         if SystemDockVisibilityService.shared.hasSnapshot {
             SystemDockVisibilityService.shared.restore()
         }
@@ -401,22 +421,42 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
 
     private func configureMainMenu() {
-        let appMenu = NSApp.mainMenu?.items.first?.submenu
-        if let item = appMenu?.item(withTitle: "Preferences…") ?? appMenu?.item(withTitle: "Settings…") {
-            item.title = "Settings…"
-            item.action = #selector(showSettingsWindow(_:))
-            item.target = self
+        guard let appMenu = NSApp.mainMenu?.items.first?.submenu else {
+            return
         }
 
-        if appMenu?.item(withTitle: "Check for Updates…") == nil {
-            let item = NSMenuItem(
-                title: "Check for Updates…",
-                action: #selector(checkForUpdates(_:)),
-                keyEquivalent: ""
-            )
-            item.target = self
-            appMenu?.insertItem(item, at: 1)
+        let settingsIdentifier = NSUserInterfaceItemIdentifier("docky.settings")
+        let updatesIdentifier = NSUserInterfaceItemIdentifier("docky.check-for-updates")
+
+        let updatesItem: NSMenuItem
+        if let existingItem = appMenu.items.first(where: {
+            $0.identifier == updatesIdentifier || $0.action == #selector(checkForUpdates(_:))
+        }) {
+            updatesItem = existingItem
+        } else {
+            updatesItem = NSMenuItem()
+            appMenu.insertItem(updatesItem, at: min(1, appMenu.items.count))
         }
+        updatesItem.identifier = updatesIdentifier
+        updatesItem.title = String(localized: "Check for Updates…")
+        updatesItem.action = #selector(checkForUpdates(_:))
+        updatesItem.target = self
+        updatesItem.keyEquivalent = ""
+
+        let settingsItem: NSMenuItem
+        if let existingItem = appMenu.items.first(where: {
+            $0.identifier == settingsIdentifier || $0.action == #selector(showSettingsWindow(_:))
+        }) {
+            settingsItem = existingItem
+        } else {
+            settingsItem = NSMenuItem()
+            appMenu.insertItem(settingsItem, at: min(3, appMenu.items.count))
+        }
+        settingsItem.identifier = settingsIdentifier
+        settingsItem.title = String(localized: "Settings…")
+        settingsItem.action = #selector(showSettingsWindow(_:))
+        settingsItem.target = self
+        settingsItem.keyEquivalent = ","
 
         #if DEBUG
         installDebugStatusItem()
@@ -713,8 +753,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-        panel.prompt = "Override"
-        panel.message = "Pick a docky-defaults.plist (from a feedback bundle, etc.) to replace all docky.* UserDefaults keys."
+        panel.prompt = String(localized: "Override")
+        panel.message = String(localized: "Pick a docky-defaults.plist (from a feedback bundle, etc.) to replace all docky.* UserDefaults keys.")
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
 
@@ -723,22 +763,31 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             let raw = try PropertyListSerialization.propertyList(from: data, options: [], format: nil)
             guard let dict = raw as? [String: Any] else {
                 throw NSError(domain: "DockyDebugOverride", code: 1, userInfo: [
-                    NSLocalizedDescriptionKey: "Top-level plist value isn't a dictionary."
+                    NSLocalizedDescriptionKey: String(localized: "Top-level plist value isn't a dictionary.")
                 ])
             }
 
             let dockyKeys = dict.filter { $0.key.hasPrefix("docky.") }
             guard !dockyKeys.isEmpty else {
                 throw NSError(domain: "DockyDebugOverride", code: 2, userInfo: [
-                    NSLocalizedDescriptionKey: "No docky.* keys found in \(url.lastPathComponent)."
+                    NSLocalizedDescriptionKey: String(
+                        format: String(localized: "No docky.* keys found in %@."),
+                        url.lastPathComponent
+                    )
                 ])
             }
 
             let confirm = NSAlert()
-            confirm.messageText = "Override \(dockyKeys.count) docky.* keys?"
-            confirm.informativeText = "Existing docky.* UserDefaults will be cleared first, then replaced with the values from \(url.lastPathComponent). Docky will relaunch after."
-            confirm.addButton(withTitle: "Override and Relaunch")
-            confirm.addButton(withTitle: "Cancel")
+            confirm.messageText = String(
+                format: String(localized: "Override %lld docky.* keys?"),
+                Int64(dockyKeys.count)
+            )
+            confirm.informativeText = String(
+                format: String(localized: "Existing docky.* UserDefaults will be cleared first, then replaced with the values from %@. Docky will relaunch after."),
+                url.lastPathComponent
+            )
+            confirm.addButton(withTitle: String(localized: "Override and Relaunch"))
+            confirm.addButton(withTitle: String(localized: "Cancel"))
             guard confirm.runModal() == .alertFirstButtonReturn else { return }
 
             let defaults = UserDefaults.standard
@@ -753,7 +802,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             relaunchApp()
         } catch {
             let alert = NSAlert()
-            alert.messageText = "Couldn't apply override"
+            alert.messageText = String(localized: "Couldn't apply override")
             alert.informativeText = error.localizedDescription
             alert.alertStyle = .warning
             alert.runModal()

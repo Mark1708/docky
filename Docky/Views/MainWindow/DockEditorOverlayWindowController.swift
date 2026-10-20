@@ -769,7 +769,9 @@ private struct DockEditorBrowserView: View {
                 Text(section.item.title)
                     .font(.title3.weight(.semibold))
 
-                Text(section.variants.count == 1 ? "1 variant" : "\(section.variants.count) variants")
+                Text(section.variants.count == 1
+                    ? String(localized: "1 variant")
+                    : String(format: String(localized: "Variants: %lld"), Int64(section.variants.count)))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

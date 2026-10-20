@@ -28,10 +28,10 @@ struct WindowManagementSettingsView: View {
         if preferences.showsWindowSwitcherFocusPreview,
            preferences.windowSwitcherPreviewMode == .instantFocus,
            previewControlsApply {
-            return "While the switcher is open, keep the shortcut modifiers held and tap the shortcut again to cycle. In Instant Focus mode, each step immediately focuses the next window and releasing the modifiers ends cycling."
+            return String(localized: "While the switcher is open, keep the shortcut modifiers held and tap the shortcut again to cycle. In Instant Focus mode, each step immediately focuses the next window and releasing the modifiers ends cycling.")
         }
 
-        return "While the switcher is open, keep the shortcut modifiers held and tap the shortcut again to cycle. Release the modifiers to focus the selected window."
+        return String(localized: "While the switcher is open, keep the shortcut modifiers held and tap the shortcut again to cycle. Release the modifiers to focus the selected window.")
     }
 
     var body: some View {
@@ -183,7 +183,11 @@ struct WindowManagementSettingsView: View {
                             }
                             .labelsHidden()
 
-                            Text(String(format: "%.2fs", preferences.windowPreviewHoverDelay))
+                            Text(String(
+                                format: String(localized: "%.2f s"),
+                                locale: .autoupdatingCurrent,
+                                preferences.windowPreviewHoverDelay
+                            ))
                                 .foregroundStyle(.secondary)
                                 .frame(width: 56, alignment: .trailing)
                                 .monospacedDigit()
@@ -226,7 +230,7 @@ struct WindowManagementSettingsView: View {
     }
 
     private func actionKeyRow(
-        title: String,
+        title: LocalizedStringKey,
         keyCode: UInt16,
         isRecording: Binding<Bool>,
         defaultKeyCode: UInt16,
@@ -253,7 +257,7 @@ private struct SingleKeyRecorderControl: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Button(isRecording ? "Press Key" : KeyboardShortcut.keyDisplayString(for: keyCode)) {
+            Button(isRecording ? String(localized: "Press Key") : KeyboardShortcut.keyDisplayString(for: keyCode)) {
                 isRecording = true
             }
             .buttonStyle(.borderedProminent)

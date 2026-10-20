@@ -47,7 +47,7 @@ struct KeyboardShortcut: Codable, Equatable {
 
     var displayString: String {
         guard isValid else {
-            return "Not Set"
+            return String(localized: "Not Set")
         }
 
         let modifierDisplay = Self.modifierDisplayString(for: modifierFlags)
@@ -57,7 +57,9 @@ struct KeyboardShortcut: Codable, Equatable {
 
     var releaseInstruction: String {
         let modifierDisplay = Self.modifierDisplayString(for: modifierFlags)
-        return modifierDisplay.isEmpty ? "Release shortcut to switch" : "Release \(modifierDisplay) to switch"
+        return modifierDisplay.isEmpty
+            ? String(localized: "Release shortcut to switch")
+            : String(format: String(localized: "Release %@ to switch"), modifierDisplay)
     }
 
     static let supportedModifierFlags: NSEvent.ModifierFlags = [.command, .option, .control, .shift]
@@ -96,19 +98,19 @@ struct KeyboardShortcut: Codable, Equatable {
             return character
         }
 
-        return "Key \(keyCode)"
+        return String(format: String(localized: "Key %lld"), Int64(keyCode))
     }
 
     private static let specialKeyNames: [UInt16: String] = [
-        36: "Return",
-        48: "Tab",
-        49: "Space",
-        51: "Delete",
-        53: "Escape",
-        123: "Left Arrow",
-        124: "Right Arrow",
-        125: "Down Arrow",
-        126: "Up Arrow",
+        36: String(localized: "Return"),
+        48: String(localized: "Tab"),
+        49: String(localized: "Space"),
+        51: String(localized: "Delete"),
+        53: String(localized: "Escape"),
+        123: String(localized: "Left Arrow"),
+        124: String(localized: "Right Arrow"),
+        125: String(localized: "Down Arrow"),
+        126: String(localized: "Up Arrow"),
     ]
 
     private static let characterKeyNames: [UInt16: String] = [

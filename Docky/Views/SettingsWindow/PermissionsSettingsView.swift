@@ -92,9 +92,9 @@ struct PermissionsSettingsView: View {
 
     private func statusText(for permission: Permission) -> String {
         switch service.status(for: permission) {
-        case .granted: return "Granted"
-        case .denied: return "Missing"
-        case .notDetermined: return "Not Determined"
+        case .granted: String(localized: "Granted")
+        case .denied: String(localized: "Missing")
+        case .notDetermined: String(localized: "Not Determined")
         }
     }
 
@@ -108,12 +108,12 @@ struct PermissionsSettingsView: View {
 
     private func grantMethodText(for permission: Permission) -> String? {
         switch grantMethod(for: permission) {
-        case .fullDiskAccess: return "Full Disk Access"
-        case .automation: return "Automation"
-        case .accessibility: return "Accessibility"
-        case .screenCapture: return "Screen Recording"
-        case .location: return "Location"
-        case .none: return nil
+        case .fullDiskAccess: String(localized: "Full Disk Access")
+        case .automation: String(localized: "Automation")
+        case .accessibility: String(localized: "Accessibility")
+        case .screenCapture: String(localized: "Screen Recording")
+        case .location: String(localized: "Location")
+        case .none: nil
         }
     }
 
@@ -138,14 +138,14 @@ struct PermissionsSettingsView: View {
 
     private func buttonTitle(for permission: Permission) -> String {
         switch permission {
-        case .userFolders: return "Open System Settings"
-        case .finderAutomation: return "Request Finder Access"
-        case .systemEventsAutomation: return "Request System Events Access"
-        case .accessibility: return "Request Accessibility Access"
-        case .screenCapture: return "Request Screen Recording Access"
-        case .location: return "Request Location Access"
-        case .calendar: return "Request Calendar Access"
-        case .reminders: return "Request Reminders Access"
+        case .userFolders: String(localized: "Open System Settings")
+        case .finderAutomation: String(localized: "Request Finder Access")
+        case .systemEventsAutomation: String(localized: "Request System Events Access")
+        case .accessibility: String(localized: "Request Accessibility Access")
+        case .screenCapture: String(localized: "Request Screen Recording Access")
+        case .location: String(localized: "Request Location Access")
+        case .calendar: String(localized: "Request Calendar Access")
+        case .reminders: String(localized: "Request Reminders Access")
         }
     }
 }

@@ -345,7 +345,7 @@ final class TileStore: ObservableObject {
         }
         if appFolderBundleIdentifiers.count >= 2 {
             pinnedItems.append(.appFolder(
-                displayName: "Folder",
+                displayName: String(localized: "Folder"),
                 bundleIdentifiers: appFolderBundleIdentifiers,
                 displayMode: .grid,
                 contentViewMode: .grid
@@ -506,7 +506,7 @@ final class TileStore: ObservableObject {
             let folderItem = updatedItems[folderIndex]
             updatedItems[folderIndex] = .appFolder(
                 id: folderItem.id,
-                displayName: folderItem.folderDisplayName ?? "Folder",
+                displayName: folderItem.folderDisplayName ?? String(localized: "Folder"),
                 bundleIdentifiers: folderItem.folderBundleIdentifiers + sourceBundleIdentifiers,
                 displayMode: folderItem.appFolderDisplayMode ?? .grid,
                 contentViewMode: folderItem.folderContentViewMode ?? .grid
@@ -569,16 +569,16 @@ final class TileStore: ObservableObject {
         }
 
         let alert = NSAlert()
-        alert.messageText = "Rename Folder"
-        alert.informativeText = "Choose a name for this app folder."
+        alert.messageText = String(localized: "Rename Folder")
+        alert.informativeText = String(localized: "Choose a name for this app folder.")
         alert.alertStyle = .informational
-        alert.addButton(withTitle: "Rename")
-        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: String(localized: "Rename"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
 
         let textField = NSTextField(frame: NSRect(x: 0, y: 0, width: 260, height: 24))
-        textField.stringValue = item.folderDisplayName ?? "Folder"
-        textField.placeholderString = "Folder"
-        alert.accessoryView = textField
+        let defaultFolderName = String(localized: "Folder")
+        textField.stringValue = item.folderDisplayName ?? defaultFolderName
+        textField.placeholderString = defaultFolderName
 
         guard alert.runModal() == .alertFirstButtonReturn else {
             return
@@ -610,7 +610,7 @@ final class TileStore: ObservableObject {
         default:
             pinnedItems[itemIndex] = .appFolder(
                 id: existingItem.id,
-                displayName: existingItem.folderDisplayName ?? "Folder",
+                displayName: existingItem.folderDisplayName ?? String(localized: "Folder"),
                 bundleIdentifiers: remainingBundleIdentifiers,
                 displayMode: existingItem.appFolderDisplayMode ?? .grid,
                 contentViewMode: existingItem.folderContentViewMode ?? .grid
@@ -676,7 +676,7 @@ final class TileStore: ObservableObject {
         var pinnedItems = preferences.pinnedItems
         pinnedItems[itemIndex] = .appFolder(
             id: existingItem.id,
-            displayName: existingItem.folderDisplayName ?? "Folder",
+            displayName: existingItem.folderDisplayName ?? String(localized: "Folder"),
             bundleIdentifiers: ids,
             displayMode: existingItem.appFolderDisplayMode ?? .grid,
             contentViewMode: existingItem.folderContentViewMode ?? .grid
@@ -1932,7 +1932,7 @@ final class TileStore: ObservableObject {
 
             let existingItem = self.preferences.pinnedItems[itemIndex]
             guard existingItem.kind == .appFolder,
-                  (existingItem.folderDisplayName ?? "Folder") == expectedDisplayName else {
+                  (existingItem.folderDisplayName ?? String(localized: "Folder")) == expectedDisplayName else {
                 return
             }
 
@@ -2019,7 +2019,7 @@ final class TileStore: ObservableObject {
                 default:
                     return .appFolder(
                         id: item.id,
-                        displayName: item.folderDisplayName ?? "Folder",
+                        displayName: item.folderDisplayName ?? String(localized: "Folder"),
                         bundleIdentifiers: remainingBundleIdentifiers,
                         displayMode: item.appFolderDisplayMode ?? .grid,
                         contentViewMode: item.folderContentViewMode ?? .grid
@@ -2077,7 +2077,7 @@ final class TileStore: ObservableObject {
                 id: Self.pinnedTileID(for: item),
                 content: .appFolder(AppFolderTile(
                     identifier: item.id,
-                    displayName: item.folderDisplayName ?? "Folder",
+                    displayName: item.folderDisplayName ?? String(localized: "Folder"),
                     apps: apps,
                     displayMode: item.appFolderDisplayMode ?? .grid,
                     contentViewMode: item.folderContentViewMode ?? .grid
@@ -2704,7 +2704,7 @@ final class TileStore: ObservableObject {
             .split(whereSeparator: \.isWhitespace)
             .joined(separator: " ")
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        return normalized.isEmpty ? "Folder" : normalized
+        return normalized.isEmpty ? String(localized: "Folder") : normalized
     }
 
     // MARK: - Parsing plist entries
@@ -2727,7 +2727,7 @@ final class TileStore: ObservableObject {
     }
 
     private static func parseAppTile(id: String, data: [String: Any]) -> Tile? {
-        let label = (data["file-label"] as? String) ?? "Unknown"
+        let label = (data["file-label"] as? String) ?? String(localized: "Unknown")
         let fileData = data["file-data"] as? [String: Any]
         let urlString = fileData?["_CFURLString"] as? String
         let url = urlString.flatMap { URL(string: $0) }
@@ -2791,7 +2791,7 @@ final class TileStore: ObservableObject {
     }
 
     private static func parseFolderTile(id: String, data: [String: Any]) -> Tile? {
-        let label = (data["file-label"] as? String) ?? "Folder"
+        let label = (data["file-label"] as? String) ?? String(localized: "Folder")
         let fileData = data["file-data"] as? [String: Any]
         guard let urlString = fileData?["_CFURLString"] as? String,
               let url = URL(string: urlString) else {

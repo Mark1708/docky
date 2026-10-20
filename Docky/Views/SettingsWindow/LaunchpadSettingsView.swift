@@ -126,7 +126,7 @@ struct LaunchpadSettingsView: View {
 
                         Spacer()
 
-                        Text("\(Int(preferences.launchpadBaseIconSize)) pt")
+                        Text(localizedPoints(preferences.launchpadBaseIconSize))
                             .foregroundStyle(.secondary)
                             .monospacedDigit()
                     }
@@ -150,7 +150,7 @@ struct LaunchpadSettingsView: View {
 
                         Spacer()
 
-                        Text("\(Int(preferences.launchpadColumnSpacing)) pt")
+                        Text(localizedPoints(preferences.launchpadColumnSpacing))
                             .foregroundStyle(.secondary)
                             .monospacedDigit()
                     }
@@ -177,7 +177,7 @@ struct LaunchpadSettingsView: View {
 
                         Spacer()
 
-                        Text("\(Int(preferences.launchpadOverlayTransparency * 100))%")
+                        Text(localizedPercent(preferences.launchpadOverlayTransparency))
                             .foregroundStyle(.secondary)
                             .monospacedDigit()
                     }
@@ -256,6 +256,22 @@ struct LaunchpadSettingsView: View {
         return defaultDesktopPicturesDirectory()
     }
 
+    private func localizedPoints(_ value: CGFloat) -> String {
+        String(
+            format: String(localized: "%lld pt"),
+            locale: .autoupdatingCurrent,
+            Int64(value.rounded())
+        )
+    }
+
+    private func localizedPercent(_ value: Double) -> String {
+        String(
+            format: String(localized: "%lld%%"),
+            locale: .autoupdatingCurrent,
+            Int64((value * 100).rounded())
+        )
+    }
+
     /// First on-disk location that holds Apple's bundled desktop
     /// pictures. The classic flat folder still exists on every shipping
     /// macOS, so it stays at the top of the list; the modern
@@ -284,7 +300,7 @@ struct LaunchpadSettingsView: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-        panel.prompt = "Choose Image"
+        panel.prompt = String(localized: "Choose Image")
         panel.directoryURL = startingDirectoryForBackgroundImagePicker()
 
         // The launchpad overlay (`.mainMenu + 1`) and the launchpad

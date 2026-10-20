@@ -206,14 +206,14 @@ struct RemindersWidgetTileView: View {
 
     private var emptyTitle: String {
         if reminders.isLoading {
-            return "Loading Reminders"
+            return String(localized: "Loading Reminders")
         }
 
         if reminders.lastErrorDescription != nil {
-            return "Reminders Unavailable"
+            return String(localized: "Reminders Unavailable")
         }
 
-        return "All Clear"
+        return String(localized: "All Clear")
     }
 
     private var emptyDetail: String? {
@@ -221,20 +221,20 @@ struct RemindersWidgetTileView: View {
             return lastErrorDescription
         }
 
-        return "No incomplete reminders right now."
+        return String(localized: "No incomplete reminders right now.")
     }
 
     private func nextUpBadgeText(for item: ReminderItemSnapshot, now: Date) -> String {
         switch item.timingCategory(relativeTo: now) {
         case .overdue:
-            return "OVERDUE"
+            return String(localized: "OVERDUE")
         case .today, .upcoming:
             if let dueDate = item.dueDate {
                 return compactDueLabel(for: item, dueDate: dueDate, now: now)
             }
-            return "TO DO"
+            return String(localized: "TO DO")
         case .unscheduled:
-            return "TO DO"
+            return String(localized: "TO DO")
         }
     }
 
@@ -254,25 +254,26 @@ struct RemindersWidgetTileView: View {
 
     private func detailedDueLine(for item: ReminderItemSnapshot, now: Date) -> String {
         guard let dueDate = item.dueDate else {
-            return "No due date"
+            return String(localized: "No due date")
         }
 
-        var list = ""
-        if !item.listTitle.isEmpty {
-            list = " in \(item.listTitle)"
-        }
+        let listSuffix = item.listTitle.isEmpty ? "" : " • \(item.listTitle)"
 
         switch item.timingCategory(relativeTo: now) {
         case .overdue:
-            return item.hasDueTime && Calendar.autoupdatingCurrent.isDate(dueDate, inSameDayAs: now)
-                ? "Overdue • \(timeFormatter.string(from: dueDate))\(list)"
-                : "Overdue • \(dayLabel(for: item, dueDate: dueDate, now: now))\(list)"
+            let dueText = item.hasDueTime && Calendar.autoupdatingCurrent.isDate(dueDate, inSameDayAs: now)
+                ? timeFormatter.string(from: dueDate)
+                : dayLabel(for: item, dueDate: dueDate, now: now)
+            return String(format: String(localized: "Overdue • %@%@"), dueText, listSuffix)
         case .today:
-            return item.hasDueTime ? timeFormatter.string(from: dueDate) : "Today\(list)"
+            let dueText = item.hasDueTime
+                ? timeFormatter.string(from: dueDate)
+                : String(localized: "date.today", defaultValue: "Today")
+            return dueText + listSuffix
         case .upcoming:
-            return dayLabel(for: item, dueDate: dueDate, now: now) + list
+            return dayLabel(for: item, dueDate: dueDate, now: now) + listSuffix
         case .unscheduled:
-            return "No due date\(list)"
+            return String(localized: "No due date") + listSuffix
         }
     }
 
@@ -284,11 +285,11 @@ struct RemindersWidgetTileView: View {
         }
 
         if calendar.isDateInToday(dueDate) {
-            return "TODAY"
+            return String(localized: "date.today.uppercase", defaultValue: "TODAY")
         }
 
         if calendar.isDateInTomorrow(dueDate) {
-            return "TOM"
+            return String(localized: "TOM")
         }
 
         return compactDayFormatter.string(from: dueDate).uppercased()
@@ -298,11 +299,13 @@ struct RemindersWidgetTileView: View {
         let calendar = Calendar.autoupdatingCurrent
 
         if calendar.isDateInToday(dueDate) {
-            return item.hasDueTime ? timeFormatter.string(from: dueDate) : "Today"
+            return item.hasDueTime ? timeFormatter.string(from: dueDate) : String(localized: "date.today", defaultValue: "Today")
         }
 
         if calendar.isDateInTomorrow(dueDate) {
-            return item.hasDueTime ? "Tomorrow \(timeFormatter.string(from: dueDate))" : "Tomorrow"
+            return item.hasDueTime
+                ? String(format: String(localized: "Tomorrow %@"), timeFormatter.string(from: dueDate))
+                : String(localized: "date.tomorrow", defaultValue: "Tomorrow")
         }
 
         if calendar.dateComponents([.day], from: calendar.startOfDay(for: now), to: calendar.startOfDay(for: dueDate)).day ?? 0 < 7 {

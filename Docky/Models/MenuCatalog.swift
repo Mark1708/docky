@@ -149,10 +149,12 @@ struct CatalogPackageManifest: Codable, Identifiable {
 struct CatalogActionPackage: Codable, Identifiable {
     let id: String
     let title: String
+    let titleLocalizationKey: String?
     let author: String
     let version: String
     let reviewStatus: String
     let description: String?
+    let descriptionLocalizationKey: String?
     let actions: [CatalogActionDefinition]
 
     var manifest: CatalogPackageManifest {
@@ -180,7 +182,9 @@ struct CatalogMenusDocument: Codable {
 struct CatalogActionDefinition: Codable, Identifiable {
     let id: String
     let title: String
+    let titleLocalizationKey: String?
     let alternateTitle: String?
+    let alternateTitleLocalizationKey: String?
     let alternateTitleWhen: CatalogCondition?
     let kind: CatalogActionKind
     let tileTypes: [MenuTileType]
@@ -212,7 +216,9 @@ struct CatalogMenuDefinition: Codable {
 
 struct CatalogMenuItemDefinition: Codable {
     let type: CatalogMenuItemType
+    let id: String?
     let title: String?
+    let titleLocalizationKey: String?
     let action: String?
     let alternateAction: String?
     let alternateActionWhen: CatalogCondition?

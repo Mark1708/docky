@@ -186,12 +186,12 @@ struct WidgetsSettingsView: View {
                 )
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(widget.title)
+                Text(widget.localizedTitle)
                     .font(.headline)
                 Text("\(widget.author) • \(widget.version)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                if let description = widget.description, !description.isEmpty {
+                if let description = widget.localizedDescription, !description.isEmpty {
                     Text(description)
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -357,7 +357,7 @@ struct WidgetsSettingsView: View {
                     identifier: url.lastPathComponent,
                     displayName: url.deletingPathExtension().lastPathComponent,
                     systemImageName: "exclamationmark.triangle",
-                    author: "Unknown",
+                    author: String(localized: "Unknown"),
                     version: "—",
                     status: .failed(failure.localizedReason)
                 ))
@@ -367,7 +367,7 @@ struct WidgetsSettingsView: View {
                     identifier: url.lastPathComponent,
                     displayName: url.deletingPathExtension().lastPathComponent,
                     systemImageName: "puzzlepiece.extension",
-                    author: "Unknown",
+                    author: String(localized: "Unknown"),
                     version: "—",
                     status: .needsRestart
                 ))
@@ -380,7 +380,11 @@ struct WidgetsSettingsView: View {
             combined.append(WidgetEntry(
                 bundleURL: registration.bundleURL,
                 identifier: registration.metadata.identifier,
-                displayName: registration.metadata.displayName + " (file missing)",
+                displayName: String(
+                    format: String(localized: "%@ (file missing)"),
+                    locale: .autoupdatingCurrent,
+                    registration.metadata.displayName
+                ),
                 systemImageName: registration.metadata.systemImageName,
                 author: registration.metadata.author,
                 version: registration.metadata.version,
@@ -393,7 +397,7 @@ struct WidgetsSettingsView: View {
 
     private func installWidget() {
         let panel = NSOpenPanel()
-        panel.title = "Install Widget"
+        panel.title = String(localized: "Install Widget")
         panel.allowsMultipleSelection = false
         panel.canChooseFiles = true
         panel.canChooseDirectories = false
@@ -481,8 +485,8 @@ private struct WidgetEntry: Identifiable {
         var badgeText: String? {
             switch self {
             case .loaded: nil
-            case .needsRestart: "Needs Restart"
-            case .failed: "Failed to Load"
+            case .needsRestart: String(localized: "Needs Restart")
+            case .failed: String(localized: "Failed to Load")
             }
         }
 

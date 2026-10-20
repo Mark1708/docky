@@ -87,12 +87,15 @@ struct SearchWidgetTileView: View {
                             .font(.body)
                             .foregroundStyle(Color.black)
                     }
-                    TextField("", text: $query)
-                        .textFieldStyle(.plain)
-                        .font(.body)
-                        .focused($isFieldFocused)
-                        .onSubmit(performSearch)
-                        .background(.clear)
+                    TextField(text: $query) {
+                        Text("Search Google")
+                    }
+                    .labelsHidden()
+                    .textFieldStyle(.plain)
+                    .font(.body)
+                    .focused($isFieldFocused)
+                    .onSubmit(performSearch)
+                    .background(.clear)
                 }
             }
             .padding(.horizontal, metrics.horizontalInset)

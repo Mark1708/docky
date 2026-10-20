@@ -12,6 +12,11 @@ import CryptoKit
 import Foundation
 
 struct MarketplaceWidget: Decodable, Identifiable, Equatable {
+    struct LocalizedMetadata: Decodable, Equatable {
+        let title: String?
+        let description: String?
+    }
+
     let identifier: String
     let title: String
     let author: String
@@ -21,8 +26,45 @@ struct MarketplaceWidget: Decodable, Identifiable, Equatable {
     let previewURL: URL?
     let description: String?
     let systemImageName: String?
+    let localizations: [String: LocalizedMetadata]?
 
     var id: String { identifier }
+
+    var localizedTitle: String {
+        localizedTitle(languageIdentifier: AppLocalization.effectiveLanguageIdentifier)
+    }
+
+    var localizedDescription: String? {
+        localizedDescription(languageIdentifier: AppLocalization.effectiveLanguageIdentifier)
+    }
+
+    func localizedTitle(languageIdentifier: String) -> String {
+        localizedValue(languageIdentifier: languageIdentifier, keyPath: \.title) ?? title
+    }
+
+    func localizedDescription(languageIdentifier: String) -> String? {
+        localizedValue(languageIdentifier: languageIdentifier, keyPath: \.description) ?? description
+    }
+
+    private func localizedValue(
+        languageIdentifier: String,
+        keyPath: KeyPath<LocalizedMetadata, String?>
+    ) -> String? {
+        guard let localizations else {
+            return nil
+        }
+
+        let candidates = ExternalWidgetLocalization.localizationCandidates(
+            languageIdentifier: languageIdentifier,
+            availableLocalizations: Array(localizations.keys)
+        )
+        for candidate in candidates {
+            if let value = localizations[candidate]?[keyPath: keyPath], !value.isEmpty {
+                return value
+            }
+        }
+        return nil
+    }
 }
 
 @MainActor
@@ -161,13 +203,13 @@ enum MarketplaceError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .http(let code):
-            "Marketplace responded with HTTP \(code)."
+            String(localized: "Marketplace responded with HTTP \(code).")
         case .unzipFailed(let code):
-            "Couldn't unzip the widget archive (exit code \(code))."
+            String(localized: "Couldn't unzip the widget archive (exit code \(code)).")
         case .bundleMissing:
-            "The downloaded archive doesn't contain a .dockywidget bundle."
+            String(localized: "The downloaded archive doesn't contain a .dockywidget bundle.")
         case .sha256Mismatch(let expected, let actual):
-            "Download SHA-256 mismatch.\nExpected: \(expected)\nGot: \(actual)"
+            String(localized: "Download SHA-256 mismatch.\nExpected: \(expected)\nGot: \(actual)")
         }
     }
 }

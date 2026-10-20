@@ -1193,7 +1193,7 @@ struct TileView: View {
         case .folder(let folder):
             folder.displayName
         case .trash:
-            "Trash"
+            String(localized: "Trash")
         case .spacer, .flexibleSpacer, .divider:
             nil
         }
@@ -1779,21 +1779,30 @@ struct TileView: View {
 
         var result = actions
         if let optionsIndex = result.firstIndex(where: {
-            $0.kind == .submenu && $0.title == "Options"
+            $0.kind == .submenu && $0.sourceID == "app.options"
         }) {
-            var children = result[optionsIndex].children
+            let optionsAction = result[optionsIndex]
+            var children = optionsAction.children
             if !children.isEmpty, children.last?.kind != .divider {
                 children.append(.divider)
             }
             children.append(contentsOf: dockyOptions)
-            result[optionsIndex] = .submenu(String(localized: "Options"), children: children)
+            result[optionsIndex] = .submenu(
+                optionsAction.title,
+                sourceID: optionsAction.sourceID,
+                children: children
+            )
             return result
         }
 
         if !result.isEmpty, result.last?.kind != .divider {
             result.append(.divider)
         }
-        result.append(.submenu(String(localized: "Options"), children: dockyOptions))
+        result.append(.submenu(
+            String(localized: "Options"),
+            sourceID: "app.options",
+            children: dockyOptions
+        ))
         return result
     }
 
@@ -1819,7 +1828,11 @@ struct TileView: View {
         }
 
         actions.append(.divider)
-        actions.append(.submenu(String(localized: "Options"), children: appOptionsActions(for: app, isPinned: isPinned, canTogglePinned: canTogglePinned)))
+        actions.append(.submenu(
+            String(localized: "Options"),
+            sourceID: "app.options",
+            children: appOptionsActions(for: app, isPinned: isPinned, canTogglePinned: canTogglePinned)
+        ))
 
         if isDockyPinnedTile || isDockyTrailingTile {
             actions.append(.divider)
@@ -2088,7 +2101,7 @@ struct TileView: View {
             ])
 
             if let playbackState = mediaPlayback.state(for: widget.ownerBundleIdentifier), playbackState.supportsFavorite {
-                actions.append(.action(playbackState.isFavorite ? "Unfavorite" : "Favorite") {
+                actions.append(.action(playbackState.isFavorite ? String(localized: "Unfavorite") : String(localized: "Favorite")) {
                     Task {
                         await mediaPlayback.setFavorite(!playbackState.isFavorite, for: widget.ownerBundleIdentifier)
                     }
@@ -2366,16 +2379,18 @@ struct TileView: View {
     }
 
     private func spanTitle(for span: TileSpan) -> String {
+        let count: Int64
         switch span {
         case .one:
-            "1 Tile"
+            count = 1
         case .two:
-            "2 Tiles"
+            count = 2
         case .three:
-            "3 Tiles"
+            count = 3
         case .four:
-            "4 Tiles"
+            count = 4
         }
+        return String.localizedStringWithFormat(String(localized: "%lld Tiles"), count)
     }
 
 }
@@ -2619,7 +2634,7 @@ private struct FolderListMenuPresenter: NSViewRepresentable {
             case .loaded(let itemURLs):
                 let sortedItemURLs = FolderAccessService.shared.sortedItems(in: itemURLs, sortMode: tile.sortMode)
                 if sortedItemURLs.isEmpty {
-                    let emptyItem = NSMenuItem(title: "No visible items", action: nil, keyEquivalent: "")
+                    let emptyItem = NSMenuItem(title: String(localized: "No visible items"), action: nil, keyEquivalent: "")
                     emptyItem.isEnabled = false
                     menu.addItem(emptyItem)
                 } else if sortedItemURLs.count > inlineItemLimit {
@@ -2627,7 +2642,11 @@ private struct FolderListMenuPresenter: NSViewRepresentable {
                         menu.addItem(menuItem(for: itemURL))
                     }
                     let overflowCount = sortedItemURLs.count - inlineItemLimit
-                    let showMoreItem = NSMenuItem(title: "Show More (\(overflowCount))", action: nil, keyEquivalent: "")
+                    let showMoreTitle = String.localizedStringWithFormat(
+                        String(localized: "Show More (%lld)"),
+                        Int64(overflowCount)
+                    )
+                    let showMoreItem = NSMenuItem(title: showMoreTitle, action: nil, keyEquivalent: "")
                     let overflowMenu = NSMenu(title: showMoreItem.title)
                     for itemURL in sortedItemURLs.dropFirst(inlineItemLimit) {
                         overflowMenu.addItem(menuItem(for: itemURL))
@@ -2640,7 +2659,7 @@ private struct FolderListMenuPresenter: NSViewRepresentable {
                     }
                 }
             case .unreadable:
-                let unreadableItem = NSMenuItem(title: "Can't read folder contents", action: nil, keyEquivalent: "")
+                let unreadableItem = NSMenuItem(title: String(localized: "Can't read folder contents"), action: nil, keyEquivalent: "")
                 unreadableItem.isEnabled = false
                 menu.addItem(unreadableItem)
             }
@@ -2649,7 +2668,7 @@ private struct FolderListMenuPresenter: NSViewRepresentable {
                 menu.addItem(.separator())
             }
 
-            let openInFinderItem = NSMenuItem(title: "Open in Finder", action: #selector(openInFinder(_:)), keyEquivalent: "")
+            let openInFinderItem = NSMenuItem(title: String(localized: "Open in Finder"), action: #selector(openInFinder(_:)), keyEquivalent: "")
             openInFinderItem.target = self
             openInFinderItem.representedObject = folderURL
             menu.addItem(openInFinderItem)
@@ -3164,7 +3183,7 @@ func appWindowMenuTitle(for window: AppWindow) -> String {
         return window.windowTitle
     }
 
-    return "\(window.windowTitle) (Minimized)"
+    return "\(window.windowTitle) \(String(localized: "(minimized)"))"
 }
 
 private func openWithApplicationActions(for url: URL) -> [ContextAction] {

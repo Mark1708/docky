@@ -292,10 +292,10 @@ struct CalendarWidgetTileView: View {
     private func sectionTitle(for day: Date, now: Date) -> String {
         let calendarRef = Calendar.autoupdatingCurrent
         if calendarRef.isDate(day, inSameDayAs: now) {
-            return "Today"
+            return String(localized: "date.today", defaultValue: "Today")
         }
         if calendarRef.isDateInTomorrow(day) {
-            return "Tomorrow"
+            return String(localized: "date.tomorrow", defaultValue: "Tomorrow")
         }
         return sectionDayFormatter.string(from: day)
     }
@@ -338,12 +338,16 @@ struct CalendarWidgetTileView: View {
 
     private func expandedScheduleText(for event: CalendarEventSnapshot, now: Date) -> String {
         if event.isAllDay {
-            return "All day"
+            return String(localized: "calendar.allDay", defaultValue: "All day")
         }
 
         let start = timeFormatter.string(from: event.startDate)
         let end = timeFormatter.string(from: event.endDate)
-        return "\(start) – \(end)"
+        return String(
+            format: String(localized: "calendar.timeRange", defaultValue: "%@ – %@"),
+            start,
+            end
+        )
     }
 
     private var headerDateFormatter: DateFormatter {
@@ -494,14 +498,14 @@ struct CalendarWidgetTileView: View {
 
     private var emptyTitle: String {
         if calendar.isLoading {
-            return "Loading Calendar"
+            return String(localized: "Loading Calendar")
         }
 
         if calendar.lastErrorDescription != nil {
-            return "Calendar Unavailable"
+            return String(localized: "Calendar Unavailable")
         }
 
-        return "No Upcoming Events"
+        return String(localized: "No Upcoming Events")
     }
 
     private var emptyDetail: String? {
@@ -509,12 +513,12 @@ struct CalendarWidgetTileView: View {
             return lastErrorDescription
         }
 
-        return "You’re clear for now."
+        return String(localized: "You’re clear for now.")
     }
 
     private func shortTimeText(for event: CalendarEventSnapshot, now: Date) -> String {
         if event.isAllDay {
-            return "ALL DAY"
+            return String(localized: "calendar.allDay.uppercase", defaultValue: "ALL DAY")
         }
 
         if Calendar.autoupdatingCurrent.isDate(event.startDate, inSameDayAs: now) {
@@ -528,9 +532,13 @@ struct CalendarWidgetTileView: View {
         let relative = relativeTimeText(for: event.startDate, now: now)
 
         if event.isAllDay {
-            return Calendar.autoupdatingCurrent.isDate(event.startDate, inSameDayAs: now)
-                ? "Today, all day"
-                : "\(dayFormatter.string(from: event.startDate)), all day"
+            if Calendar.autoupdatingCurrent.isDate(event.startDate, inSameDayAs: now) {
+                return String(localized: "Today, all day")
+            }
+            return String(
+                format: String(localized: "%@, all day"),
+                dayFormatter.string(from: event.startDate)
+            )
         }
 
         let startTime = timeFormatter.string(from: event.startDate)
@@ -544,22 +552,26 @@ struct CalendarWidgetTileView: View {
     private func relativeTimeText(for date: Date, now: Date) -> String {
         let interval = Int(date.timeIntervalSince(now))
         if interval <= 0 {
-            return "now"
+            return String(localized: "now")
         }
 
         let minutes = interval / 60
         if minutes < 60 {
-            return "in \(minutes)m"
+            return String(format: String(localized: "in %lldm"), Int64(minutes))
         }
 
         let hours = minutes / 60
         if hours < 24 {
             let remainingMinutes = minutes % 60
-            return remainingMinutes == 0 ? "in \(hours)h" : "in \(hours)h \(remainingMinutes)m"
+            return remainingMinutes == 0
+                ? String(format: String(localized: "in %lldh"), Int64(hours))
+                : String(format: String(localized: "in %lldh %lldm"), Int64(hours), Int64(remainingMinutes))
         }
 
         let days = hours / 24
-        return days == 1 ? "tomorrow" : "in \(days)d"
+        return days == 1
+            ? String(localized: "date.tomorrow.lowercase", defaultValue: "tomorrow")
+            : String(format: String(localized: "in %lldd"), Int64(days))
     }
 
     private var timeFormatter: DateFormatter {
