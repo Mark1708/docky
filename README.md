@@ -92,8 +92,10 @@ Optionally show running apps inline so a folder doubles as a live workspace.
 
 Fork builds are published on the
 [Mark1708/docky Releases page](https://github.com/Mark1708/docky/releases).
-The first fork build is installed manually; automatic updates remain disabled
-unless a build is produced through this fork's signed release channel.
+Unsigned preview releases require a one-time Gatekeeper override and manual
+updates; follow the [preview installation guide](docs/preview-installation.md).
+The future stable release channel remains disabled unless a build is signed,
+notarized, and produced through this fork's secured Sparkle workflow.
 
 The website, Homebrew tap, and existing Sparkle channel at `getdocky.com` are
 operated by the upstream project and do not distribute this fork:
@@ -138,6 +140,8 @@ English. Restart Docky after changing its app language.
 
 - [External widget bundles](docs/external-widgets.md): the `.dockywidget` bundle
   contract and how to build community widgets.
+- [Unsigned preview releases](docs/preview-releases.md): artifact contract,
+  maintainer workflow, verification, and replacement policy.
 
 ## Supporting upstream Docky
 
