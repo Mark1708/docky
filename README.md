@@ -125,7 +125,7 @@ automatically on first build.
 ### Requirements
 
 - macOS 14.0 (Sonoma) or later
-- Xcode 16 or later to build from source
+- Xcode 26 or later to build from source
 
 ### Language
 
