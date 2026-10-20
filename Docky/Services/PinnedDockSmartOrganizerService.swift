@@ -151,7 +151,9 @@ final class PinnedDockSmartOrganizerService {
     ) async -> [SuggestedItem] {
         #if canImport(FoundationModels)
         let model = SystemLanguageModel.default
-        if case .available = model.availability {
+        let localePolicy = FoundationModelLocalePolicy()
+        if case .available = model.availability,
+           model.supportsLocale(localePolicy.effectiveLocale) {
             let progressToken = SmartOrganizeProgressService.shared.begin()
             defer {
                 SmartOrganizeProgressService.shared.end(progressToken)
@@ -159,7 +161,10 @@ final class PinnedDockSmartOrganizerService {
 
             let session = LanguageModelSession(
                 model: model,
-                instructions: "You organize a macOS dock. Produce a compact, practical pinned layout. Group related apps into small folders when it improves scanning. Use at most two dividers and one spacer. Include up to two widgets only when they add clear value but no more than 2 in the whole layout. Keep common daily apps directly accessible. Do not invent bundle identifiers or widget owners."
+                instructions: """
+                You organize a macOS dock. Produce a compact, practical pinned layout. Group related apps into small folders when it improves scanning. Use at most two dividers and one spacer. Include up to two widgets only when they add clear value but no more than 2 in the whole layout. Keep common daily apps directly accessible. Do not invent bundle identifiers or widget owners.
+                \(localePolicy.responseInstruction)
+                """
             )
 
             let appList = apps.map {
@@ -188,23 +193,7 @@ final class PinnedDockSmartOrganizerService {
             - Return only the structured layout.
             - Avoid single app folders.
 
-            Example:
-            <pinned items>
-            Finder, Dia, Notes, Calendar, Music, Messages, Slack, Mail, Xcode, Figma, Ghostty, Linear
-            </pinned items>
-            <trailing section>
-            Downloads Folder, Trash
-            </trailing section>
-
-            Proposed example:
-            <pinned items>
-            Finder, <folder name="Messaging">Messages, Slack, Mail</folder>, <folder name="Developer">Xcode, Ghostty</folder>, Dia, Notes, Calendar, Music, Figma, Linear
-            </pinned items>
-            <trailing section>
-            Since Music is in there - a now playing widget, Downloads Folder
-            </trailing section>
-
-            Use that example as a style reference for compact grouping, keeping high-frequency apps directly accessible, and adding a relevant media/widget surface when it clearly fits.
+            Use compact grouping, keep high-frequency apps directly accessible, and add a relevant widget only when it clearly fits.
             """
 
             do {
@@ -302,9 +291,9 @@ final class PinnedDockSmartOrganizerService {
 
     private func groupedAppsByHeuristic(_ apps: [AvailableApp]) -> [HeuristicGroup] {
         let buckets: [(title: String, matcher: (AvailableApp) -> Bool)] = [
-            ("Browse", { self.matches($0, keywords: ["safari", "chrome", "firefox", "arc", "edge", "browser"]) }),
-            ("Build", { self.matches($0, keywords: ["xcode", "code", "cursor", "terminal", "ghostty", "iterm", "docker", "postman", "figma"]) }),
-            ("Chat", { self.matches($0, keywords: ["messages", "slack", "discord", "teams", "mail", "spark", "notion calendar"]) }),
+            (String(localized: "Browse"), { self.matches($0, keywords: ["safari", "chrome", "firefox", "arc", "edge", "browser"]) }),
+            (String(localized: "Build"), { self.matches($0, keywords: ["xcode", "code", "cursor", "terminal", "ghostty", "iterm", "docker", "postman", "figma"]) }),
+            (String(localized: "Chat"), { self.matches($0, keywords: ["messages", "slack", "discord", "teams", "mail", "spark", "notion calendar"]) }),
         ]
 
         var remaining = apps
@@ -325,7 +314,7 @@ final class PinnedDockSmartOrganizerService {
 
         if !remaining.isEmpty {
             result.append(HeuristicGroup(
-                title: "Apps",
+                title: String(localized: "Apps"),
                 bundleIdentifiers: remaining.map(\.bundleIdentifier),
                 insertDividerAfter: false
             ))

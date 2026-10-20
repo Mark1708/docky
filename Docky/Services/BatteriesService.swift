@@ -157,9 +157,9 @@ final class BatteriesService: ObservableObject {
             }
 
             let locationID = uint32Value(properties["LocationID"])
-            let resolvedName = locationID.flatMap { productNamesByLocationID[$0] }
+            let explicitName = locationID.flatMap { productNamesByLocationID[$0] }
                 ?? trimmedNonEmptyString(properties["Product"])
-                ?? inferredAccessoryName(from: properties)
+            let resolvedName = explicitName ?? inferredAccessoryName(from: properties)
             let identifier = accessoryIdentifier(
                 locationID: locationID,
                 properties: properties,
@@ -170,10 +170,11 @@ final class BatteriesService: ObservableObject {
                 continue
             }
 
+            let kind = accessoryKind(for: resolvedName, properties: properties)
             devices.append(BatteryDeviceSnapshot(
                 id: identifier,
-                name: resolvedName,
-                kind: accessoryKind(for: resolvedName, properties: properties),
+                name: explicitName ?? fallbackAccessoryDisplayName(for: kind),
+                kind: kind,
                 transport: trimmedNonEmptyString(properties["Transport"]),
                 isCharging: false,
                 levels: levels,
@@ -232,22 +233,30 @@ final class BatteriesService: ObservableObject {
     ) -> String? {
         if isCharging {
             if let timeToFull, timeToFull > 0 {
-                return "Charging • \(durationText(minutes: timeToFull)) until full"
+                return String(
+                    format: String(localized: "Charging • %@ until full"),
+                    locale: .autoupdatingCurrent,
+                    durationText(minutes: timeToFull)
+                )
             }
 
-            return "Charging"
+            return String(localized: "Charging")
         }
 
         if powerSourceState == kIOPSACPowerValue as String {
-            return "On power"
+            return String(localized: "On power")
         }
 
         if let timeToEmpty, timeToEmpty > 0 {
-            return "\(durationText(minutes: timeToEmpty)) remaining"
+            return String(
+                format: String(localized: "%@ remaining"),
+                locale: .autoupdatingCurrent,
+                durationText(minutes: timeToEmpty)
+            )
         }
 
         if powerSourceState == kIOPSBatteryPowerValue as String {
-            return "On battery"
+            return String(localized: "On battery")
         }
 
         return nil
@@ -283,6 +292,23 @@ final class BatteriesService: ObservableObject {
         }
 
         return "Accessory"
+    }
+
+    private static func fallbackAccessoryDisplayName(for kind: BatteryDeviceSnapshot.Kind) -> String {
+        switch kind {
+        case .mac:
+            "Mac"
+        case .keyboard:
+            String(localized: "Keyboard")
+        case .trackpad:
+            String(localized: "Trackpad")
+        case .mouse:
+            String(localized: "Mouse")
+        case .headphones:
+            String(localized: "Headphones")
+        case .accessory:
+            String(localized: "Accessory")
+        }
     }
 
     private static func accessoryKind(for name: String, properties: [String: Any]) -> BatteryDeviceSnapshot.Kind {
@@ -346,14 +372,27 @@ final class BatteriesService: ObservableObject {
         let remainingMinutes = minutes % 60
 
         if hours == 0 {
-            return "\(remainingMinutes)m"
+            return String(
+                format: String(localized: "%lld m"),
+                locale: .autoupdatingCurrent,
+                Int64(remainingMinutes)
+            )
         }
 
         if remainingMinutes == 0 {
-            return "\(hours)h"
+            return String(
+                format: String(localized: "%lld h"),
+                locale: .autoupdatingCurrent,
+                Int64(hours)
+            )
         }
 
-        return "\(hours)h \(remainingMinutes)m"
+        return String(
+            format: String(localized: "%lld h %lld m"),
+            locale: .autoupdatingCurrent,
+            Int64(hours),
+            Int64(remainingMinutes)
+        )
     }
 
     private static func boundedPercentage(_ value: Any?) -> Int? {

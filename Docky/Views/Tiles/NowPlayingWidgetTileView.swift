@@ -120,7 +120,7 @@ struct NowPlayingWidgetTileView: View {
             artworkView(size: layout.artworkSize, artworkCornerRadius: layout.artworkCornerRadius)
 
             VStack(alignment: .leading, spacing: layout.stackSpacing) {
-                Text(playbackState?.isPresentable == false ? (playbackState?.title ?? "Not Playing") : playbackTitle)
+                Text(playbackState?.isPresentable == false ? (playbackState?.title ?? String(localized: "Not Playing")) : playbackTitle)
                     .font(.system(size: layout.titleFontSize, weight: .semibold))
                     .foregroundStyle(primaryForegroundColor)
                     .lineLimit(1)
@@ -546,7 +546,7 @@ struct NowPlayingWidgetTileView: View {
 
     private var playbackTitle: String {
         guard let playbackState, playbackState.hasContent else {
-            return "Not Playing"
+            return String(localized: "Not Playing")
         }
 
         return playbackState.title.isEmpty ? ownerDisplayName : playbackState.title

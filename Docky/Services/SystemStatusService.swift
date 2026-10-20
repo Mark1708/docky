@@ -281,11 +281,20 @@ struct SystemStatusSnapshot: Equatable {
     }
 
     private static func percentText(_ value: Double) -> String {
-        "\(Int(value.rounded()))%"
+        String(
+            format: String(localized: "%lld%%"),
+            locale: .autoupdatingCurrent,
+            Int64(value.rounded())
+        )
     }
 
     private static func compactRateText(_ bytesPerSecond: Double) -> String {
-        let units = ["B", "K", "M", "G"]
+        let units = [
+            String(localized: "B"),
+            String(localized: "K"),
+            String(localized: "M"),
+            String(localized: "G"),
+        ]
         var value = max(0, bytesPerSecond)
         var unitIndex = 0
 
@@ -294,14 +303,21 @@ struct SystemStatusSnapshot: Equatable {
             unitIndex += 1
         }
 
-        if unitIndex == 0 {
-            return "\(Int(value.rounded()))\(units[unitIndex])"
+        if unitIndex == 0 || value >= 10 {
+            return String(
+                format: String(localized: "%lld %@"),
+                locale: .autoupdatingCurrent,
+                Int64(value.rounded()),
+                units[unitIndex]
+            )
         }
 
-        let formatted = value >= 10
-            ? String(Int(value.rounded()))
-            : String(format: "%.1f", value)
-        return "\(formatted)\(units[unitIndex])"
+        return String(
+            format: String(localized: "%.1f %@"),
+            locale: .autoupdatingCurrent,
+            value,
+            units[unitIndex]
+        )
     }
 
     private static func networkProgress(_ bytesPerSecond: Double) -> Double {

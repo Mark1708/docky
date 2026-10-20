@@ -31,8 +31,11 @@
 
 ## Checklist
 
-- [ ] The `Docky` scheme builds without new warnings.
-- [ ] I tested the change on macOS 14.0 or later.
+- [ ] `python3 scripts/validate_localizations.py` passes.
+- [ ] `python3 -m unittest discover -s scripts/tests` passes.
+- [ ] The unsigned Debug build passes: `xcodebuild -project Docky.xcodeproj -scheme Docky -configuration Debug -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build`.
+- [ ] App-hosted tests pass: `DOCKY_TEST_MODE=1 xcodebuild -project Docky.xcodeproj -scheme Docky -configuration Debug -destination 'platform=macOS' CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= test`.
+- [ ] I tested the changed runtime behavior on macOS 14.0 or later.
 - [ ] I granted/verified any required Accessibility and Screen Recording permissions where relevant.
 - [ ] Commit messages follow the `type(scope): summary` convention used in this repo.
 - [ ] I updated documentation (README, comments) where needed.

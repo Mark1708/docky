@@ -13,12 +13,12 @@ struct ShortcutRecorderControl: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Button(isRecording ? "Type Shortcut" : shortcut.displayString) {
+            Button(isRecording ? String(localized: "Type Shortcut") : shortcut.displayString) {
                 isRecording = true
             }
             .buttonStyle(.borderedProminent)
 
-            Button(resetShortcut == nil ? "Clear" : "Reset") {
+            Button(resetShortcut == nil ? String(localized: "Clear") : String(localized: "Reset")) {
                 onChange(resetShortcut ?? .empty)
                 isRecording = false
             }

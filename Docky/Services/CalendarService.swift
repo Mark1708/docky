@@ -87,7 +87,7 @@ final class CalendarService: ObservableObject {
             nextEvent = nil
             upcomingEvents = []
             isLoading = false
-            lastErrorDescription = "Calendar read access is needed to show upcoming events."
+            lastErrorDescription = String(localized: "Calendar read access is needed to show upcoming events.")
         case .notDetermined:
             // Permission is requested lazily from the widget's Enable button,
             // never automatically on render. Leave the widget in its
@@ -99,12 +99,12 @@ final class CalendarService: ObservableObject {
             nextEvent = nil
             upcomingEvents = []
             isLoading = false
-            lastErrorDescription = "Enable Calendar access in Settings to show upcoming events."
+            lastErrorDescription = String(localized: "Enable Calendar access in Settings to show upcoming events.")
         @unknown default:
             nextEvent = nil
             upcomingEvents = []
             isLoading = false
-            lastErrorDescription = "Calendar is unavailable right now."
+            lastErrorDescription = String(localized: "Calendar is unavailable right now.")
         }
     }
 

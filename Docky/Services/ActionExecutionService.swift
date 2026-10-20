@@ -25,8 +25,12 @@ final class ActionExecutionService {
     private init() {}
 
     @discardableResult
-    func perform(action: CatalogActionDefinition, context: CatalogActionContext) async -> Bool {
-        guard preflightPermissions(for: action) else {
+    func perform(
+        action: CatalogActionDefinition,
+        context: CatalogActionContext,
+        actionTitle: String
+    ) async -> Bool {
+        guard preflightPermissions(for: action, actionTitle: actionTitle) else {
             return false
         }
 
@@ -37,9 +41,13 @@ final class ActionExecutionService {
             }
             return await performBuiltinAction(builtin, context: context)
         case .applescript:
-            return await performAppleScriptAction(action, context: context)
+            return await performAppleScriptAction(action, context: context, actionTitle: actionTitle)
         case .menuClick:
-            return await MenuClickService.shared.perform(action: action, context: context)
+            return await MenuClickService.shared.perform(
+                action: action,
+                context: context,
+                actionTitle: actionTitle
+            )
         }
     }
 
@@ -81,13 +89,17 @@ final class ActionExecutionService {
         }
     }
 
-    private func performAppleScriptAction(_ action: CatalogActionDefinition, context: CatalogActionContext) async -> Bool {
+    private func performAppleScriptAction(
+        _ action: CatalogActionDefinition,
+        context: CatalogActionContext,
+        actionTitle: String
+    ) async -> Bool {
         guard let source = action.script else { return false }
         let resolvedSource = resolveScript(source, inputs: action.inputs, context: context)
         switch await AppleScriptService.shared.runCatalogScript(
             source: resolvedSource,
             permissionRequirements: action.permissions.map(\.permission),
-            actionTitle: action.title,
+            actionTitle: actionTitle,
             targetApp: action.targetApp
         ) {
         case .success:
@@ -107,7 +119,10 @@ final class ActionExecutionService {
         return resolved
     }
 
-    private func preflightPermissions(for action: CatalogActionDefinition) -> Bool {
+    private func preflightPermissions(
+        for action: CatalogActionDefinition,
+        actionTitle: String
+    ) -> Bool {
         for requirement in action.permissions {
             let permission = requirement.permission
             if permission == .finderAutomation {
@@ -125,7 +140,10 @@ final class ActionExecutionService {
             }
 
             if PermissionsService.shared.status(for: permission) != .granted {
-                PermissionsService.shared.presentPermissionAlert(for: permission, actionTitle: action.title)
+                PermissionsService.shared.presentPermissionAlert(
+                    for: permission,
+                    actionTitle: actionTitle
+                )
                 return false
             }
         }

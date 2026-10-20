@@ -73,7 +73,7 @@ final class RemindersService: ObservableObject {
         case .writeOnly:
             snapshot = nil
             isLoading = false
-            lastErrorDescription = "Reminders read access is needed to show your open tasks."
+            lastErrorDescription = String(localized: "Reminders read access is needed to show your open tasks.")
         case .notDetermined:
             // Permission is requested lazily from the widget's Enable button,
             // never automatically on render. Leave the widget in its
@@ -83,11 +83,11 @@ final class RemindersService: ObservableObject {
         case .denied, .restricted:
             snapshot = nil
             isLoading = false
-            lastErrorDescription = "Enable Reminders access in Settings to show your open tasks."
+            lastErrorDescription = String(localized: "Enable Reminders access in Settings to show your open tasks.")
         @unknown default:
             snapshot = nil
             isLoading = false
-            lastErrorDescription = "Reminders are unavailable right now."
+            lastErrorDescription = String(localized: "Reminders are unavailable right now.")
         }
     }
 
@@ -110,7 +110,7 @@ final class RemindersService: ObservableObject {
             refresh(force: true)
             return true
         } catch {
-            lastErrorDescription = "Couldn’t update reminder."
+            lastErrorDescription = String(localized: "Couldn’t update reminder.")
             return false
         }
     }

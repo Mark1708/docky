@@ -173,7 +173,7 @@ struct BehaviorSettingsView: View {
                     }
                     .labelsHidden()
 
-                    Text("\(String(format: "%.2f", preferences.autohideWindowDelay)) s")
+                    Text(localizedSeconds(preferences.autohideWindowDelay))
                         .foregroundStyle(.secondary)
                         .frame(width: 56, alignment: .trailing)
                 }
@@ -195,7 +195,7 @@ struct BehaviorSettingsView: View {
                     }
                     .labelsHidden()
 
-                    Text("\(String(format: "%.2f", preferences.autohideAnimationDuration)) s")
+                    Text(localizedSeconds(preferences.autohideAnimationDuration))
                         .foregroundStyle(.secondary)
                         .frame(width: 56, alignment: .trailing)
                 }
@@ -227,7 +227,7 @@ struct BehaviorSettingsView: View {
                     }
                     .labelsHidden()
 
-                    Text("\(String(format: "%.2f", preferences.fullscreenRevealDelay)) s")
+                    Text(localizedSeconds(preferences.fullscreenRevealDelay))
                         .foregroundStyle(.secondary)
                         .frame(width: 56, alignment: .trailing)
                 }
@@ -507,8 +507,8 @@ struct BehaviorSettingsView: View {
                     .labelsHidden()
 
                     Text(preferences.widgetHoverPreviewDelay == 0
-                        ? "Off"
-                        : "\(String(format: "%.2f", preferences.widgetHoverPreviewDelay)) s")
+                        ? String(localized: "Off")
+                        : localizedSeconds(preferences.widgetHoverPreviewDelay))
                         .foregroundStyle(.secondary)
                         .frame(width: 56, alignment: .trailing)
                 }
@@ -583,12 +583,20 @@ struct BehaviorSettingsView: View {
         }
     }
 
+    private func localizedSeconds(_ value: Double) -> String {
+        String(
+            format: String(localized: "%.2f s"),
+            locale: .autoupdatingCurrent,
+            value
+        )
+    }
+
     private func spanTitle(for span: TileSpan) -> String {
         switch span {
-        case .one: "Small"
-        case .two: "Medium"
-        case .three: "Large"
-        case .four: "Extra Large"
+        case .one: String(localized: "Small")
+        case .two: String(localized: "Medium")
+        case .three: String(localized: "Large")
+        case .four: String(localized: "Extra Large")
         }
     }
 

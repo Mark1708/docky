@@ -128,10 +128,10 @@ final class WeatherService: NSObject, ObservableObject {
             snapshot = nil
         case .denied, .restricted:
             snapshot = nil
-            lastErrorDescription = "Location access is needed for local weather."
+            lastErrorDescription = String(localized: "Location access is needed for local weather.")
         @unknown default:
             snapshot = nil
-            lastErrorDescription = "Weather is unavailable right now."
+            lastErrorDescription = String(localized: "Weather is unavailable right now.")
         }
     }
 
@@ -176,7 +176,7 @@ final class WeatherService: NSObject, ObservableObject {
                 return
             } catch {
                 self.snapshot = nil
-                self.lastErrorDescription = "Couldn’t load weather."
+                self.lastErrorDescription = String(localized: "Couldn’t load weather.")
             }
 
             self.isLoading = false
@@ -383,14 +383,14 @@ extension WeatherService: CLLocationManagerDelegate {
             isAwaitingLocation = false
             isLoading = false
             snapshot = nil
-            lastErrorDescription = "Location access is needed for local weather."
+            lastErrorDescription = String(localized: "Location access is needed for local weather.")
         case .notDetermined:
             break
         @unknown default:
             isAwaitingLocation = false
             isLoading = false
             snapshot = nil
-            lastErrorDescription = "Weather is unavailable right now."
+            lastErrorDescription = String(localized: "Weather is unavailable right now.")
         }
     }
 
@@ -398,7 +398,7 @@ extension WeatherService: CLLocationManagerDelegate {
         guard let location = locations.last else {
             isAwaitingLocation = false
             isLoading = false
-            lastErrorDescription = "Couldn’t determine your location."
+            lastErrorDescription = String(localized: "Couldn’t determine your location.")
             return
         }
 
@@ -412,11 +412,11 @@ extension WeatherService: CLLocationManagerDelegate {
 
         if let clError = error as? CLError, clError.code == .denied {
             snapshot = nil
-            lastErrorDescription = "Location access is needed for local weather."
+            lastErrorDescription = String(localized: "Location access is needed for local weather.")
             return
         }
 
-        lastErrorDescription = "Couldn’t determine your location."
+        lastErrorDescription = String(localized: "Couldn’t determine your location.")
     }
 
     private static func isAuthorizedStatus(_ status: CLAuthorizationStatus) -> Bool {
@@ -470,23 +470,36 @@ struct WeatherSnapshot: Equatable {
     }
 
     var roundedTemperatureText: String {
-        "\(Int(temperature.rounded()))°"
+        Self.temperatureText(temperature)
     }
 
     var highLowText: String {
-        let high = highTemperature.map { Int($0.rounded()) }
-        let low = lowTemperature.map { Int($0.rounded()) }
+        let high = highTemperature.map { Int64($0.rounded()) }
+        let low = lowTemperature.map { Int64($0.rounded()) }
 
         return switch (high, low) {
         case let (high?, low?):
-            "H:\(high)° L:\(low)°"
+            String(
+                format: String(localized: "H: %1$lld°  L: %2$lld°"),
+                locale: .autoupdatingCurrent,
+                high,
+                low
+            )
         case let (high?, nil):
-            "High \(high)°"
+            String(format: String(localized: "High %lld°"), locale: .autoupdatingCurrent, high)
         case let (nil, low?):
-            "Low \(low)°"
+            String(format: String(localized: "Low %lld°"), locale: .autoupdatingCurrent, low)
         case (nil, nil):
             ""
         }
+    }
+
+    private static func temperatureText(_ temperature: Double) -> String {
+        String(
+            format: String(localized: "%lld°"),
+            locale: .autoupdatingCurrent,
+            Int64(temperature.rounded())
+        )
     }
 }
 

@@ -109,7 +109,7 @@ struct SystemStatusWidgetTileView: View {
                     .foregroundStyle(Color.primary.opacity(0.9))
             }
 
-            Text(systemStatus.isLoading ? "Loading Status" : "No Status Data")
+            Text(systemStatus.isLoading ? String(localized: "Loading Status") : String(localized: "No Status Data"))
                 .font(.system(size: layout.titleFontSize, weight: .semibold))
                 .foregroundStyle(Color.primary.opacity(0.96))
                 .multilineTextAlignment(.center)

@@ -39,7 +39,7 @@ struct WeatherWidgetSettingsContent: View {
             Text("Temperature")
                 .font(.headline)
 
-            Picker("", selection: $unitSelection) {
+            Picker("Temperature Unit", selection: $unitSelection) {
                 Text("Automatic").tag(WeatherTemperatureUnitSelection.automatic)
                 Text("°C").tag(WeatherTemperatureUnitSelection.celsius)
                 Text("°F").tag(WeatherTemperatureUnitSelection.fahrenheit)
@@ -142,9 +142,9 @@ struct WeatherWidgetSettingsContent: View {
 
     private var currentLocationDisplayName: String {
         if isConfigured {
-            return configuredName ?? "Custom Location"
+            return configuredName ?? String(localized: "Custom Location")
         }
-        return "Current Location"
+        return String(localized: "Current Location")
     }
 
     private func loadCurrentSelection() {

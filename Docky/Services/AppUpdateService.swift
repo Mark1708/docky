@@ -7,68 +7,63 @@ import Combine
 import Foundation
 import Sparkle
 
-private final class AppUpdateFeedDelegate: NSObject, SPUUpdaterDelegate {
-    let fallbackFeedURLString: String
-
-    init(fallbackFeedURLString: String) {
-        self.fallbackFeedURLString = fallbackFeedURLString
-    }
-
-    func feedURLString(for updater: SPUUpdater) -> String? {
-        if let feedURL = Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") as? String,
-           !feedURL.isEmpty {
-            return feedURL
-        }
-
-        return fallbackFeedURLString
-    }
-}
-
 final class AppUpdateService: ObservableObject {
     static let shared = AppUpdateService()
-    static let feedURLString = "https://getdocky.com/releases/appcast.xml"
 
-    @Published private(set) var canCheckForUpdates: Bool
-    @Published var automaticallyChecksForUpdates: Bool {
+    @Published private(set) var isAvailable = false
+    @Published private(set) var canCheckForUpdates = false
+    @Published var automaticallyChecksForUpdates = false {
         didSet {
-            guard automaticallyChecksForUpdates != oldValue else { return }
+            guard automaticallyChecksForUpdates != oldValue, let updater else { return }
             updater.automaticallyChecksForUpdates = automaticallyChecksForUpdates
         }
     }
 
-    @Published var automaticallyDownloadsUpdates: Bool {
+    @Published var automaticallyDownloadsUpdates = false {
         didSet {
-            guard automaticallyDownloadsUpdates != oldValue else { return }
+            guard automaticallyDownloadsUpdates != oldValue, let updater else { return }
             updater.automaticallyDownloadsUpdates = automaticallyDownloadsUpdates
         }
     }
 
-    @Published var updateCheckInterval: TimeInterval {
+    @Published var updateCheckInterval: TimeInterval = 86_400 {
         didSet {
-            guard updateCheckInterval != oldValue else { return }
+            guard updateCheckInterval != oldValue, let updater else { return }
             updater.updateCheckInterval = updateCheckInterval
         }
     }
 
-    let updaterController: SPUStandardUpdaterController
-    private let feedDelegate: AppUpdateFeedDelegate
+    let updaterController: SPUStandardUpdaterController?
 
-    private var updater: SPUUpdater {
-        updaterController.updater
+    private var updater: SPUUpdater? {
+        updaterController?.updater
     }
 
     private var cancellables = Set<AnyCancellable>()
 
-    private init() {
-        feedDelegate = AppUpdateFeedDelegate(fallbackFeedURLString: Self.feedURLString)
+    private init(bundle: Bundle = .main) {
+        guard Self.hasEnabledConfiguration(in: bundle) else {
+            updaterController = nil
+            return
+        }
 
-        updaterController = SPUStandardUpdaterController(
-            startingUpdater: true,
-            updaterDelegate: feedDelegate,
+        let controller = SPUStandardUpdaterController(
+            startingUpdater: false,
+            updaterDelegate: nil,
             userDriverDelegate: nil
         )
+        updaterController = controller
 
-        let updater = updaterController.updater
+        let updater = controller.updater
+        _ = updater.clearFeedURLFromUserDefaults()
+
+        do {
+            try updater.start()
+        } catch {
+            return
+        }
+
+        isAvailable = true
         canCheckForUpdates = updater.canCheckForUpdates
         automaticallyChecksForUpdates = updater.automaticallyChecksForUpdates
         automaticallyDownloadsUpdates = updater.automaticallyDownloadsUpdates
@@ -104,11 +99,25 @@ final class AppUpdateService: ObservableObject {
     }
 
     func checkForUpdates() {
-        updater.checkForUpdates()
+        guard isAvailable else { return }
+        updater?.checkForUpdates()
     }
 
     func checkForUpdatesInBackground() {
-        guard automaticallyChecksForUpdates, canCheckForUpdates else { return }
-        updater.checkForUpdatesInBackground()
+        guard isAvailable, automaticallyChecksForUpdates, canCheckForUpdates else { return }
+        updater?.checkForUpdatesInBackground()
+    }
+
+    private static func hasEnabledConfiguration(in bundle: Bundle) -> Bool {
+        let updatesEnabled = (bundle.object(forInfoDictionaryKey: "DockyUpdatesEnabled") as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let feedURL = (bundle.object(forInfoDictionaryKey: "SUFeedURL") as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let publicKey = (bundle.object(forInfoDictionaryKey: "SUPublicEDKey") as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return updatesEnabled?.caseInsensitiveCompare("YES") == .orderedSame
+            && !(feedURL?.isEmpty ?? true)
+            && !(publicKey?.isEmpty ?? true)
     }
 }

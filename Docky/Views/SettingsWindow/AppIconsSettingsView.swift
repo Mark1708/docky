@@ -156,7 +156,7 @@ struct AppIconsSettingsView: View {
             let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier)
             let displayName = appURL.map { FileManager.default.displayName(atPath: $0.path) } ?? bundleIdentifier
             let subtitle = appURL == nil
-                ? "\(bundleIdentifier) • App not currently found on disk"
+                ? String(localized: "\(bundleIdentifier) • App not currently found on disk")
                 : bundleIdentifier
 
             return AppIconSettingsEntry(
@@ -281,7 +281,7 @@ private struct AppIconOverrideRow: View {
             Slider(value: paddingFractionBinding, in: 0...0.5, step: 0.01)
                 .controlSize(.small)
 
-            Text("\(Int((overrideEntry?.paddingFraction ?? 0) * 100))%")
+            Text(localizedPercent(overrideEntry?.paddingFraction ?? 0))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
@@ -337,6 +337,8 @@ private struct AppIconOverrideRow: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
+        panel.title = String(localized: "Choose App Icon")
+        panel.prompt = String(localized: "Choose")
 
         if panel.runModal() == .OK, let url = panel.url {
             preferences.setAppIconOverride(
@@ -487,7 +489,7 @@ private struct TrashIconOverrideRow: View {
             Slider(value: paddingFractionBinding, in: 0...0.5, step: 0.01)
                 .controlSize(.small)
 
-            Text("\(Int((overrideEntry?.paddingFraction ?? 0) * 100))%")
+            Text(localizedPercent(overrideEntry?.paddingFraction ?? 0))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
@@ -535,6 +537,8 @@ private struct TrashIconOverrideRow: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
+        panel.title = String(localized: "Choose Trash Icon")
+        panel.prompt = String(localized: "Choose")
 
         if panel.runModal() == .OK, let url = panel.url {
             preferences.setTrashIconOverride(state: state, iconPath: url.path)
@@ -610,7 +614,7 @@ private struct FolderIconOverrideRow: View {
             Slider(value: paddingFractionBinding, in: 0...0.5, step: 0.01)
                 .controlSize(.small)
 
-            Text("\(Int((overrideEntry?.paddingFraction ?? 0) * 100))%")
+            Text(localizedPercent(overrideEntry?.paddingFraction ?? 0))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
@@ -658,6 +662,8 @@ private struct FolderIconOverrideRow: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
+        panel.title = String(localized: "Choose Folder Icon")
+        panel.prompt = String(localized: "Choose")
 
         if panel.runModal() == .OK, let url = panel.url {
             preferences.setFolderIconOverride(folderPath: entry.folderPath, iconPath: url.path)
@@ -722,7 +728,7 @@ private struct LaunchpadIconOverrideRow: View {
             Slider(value: paddingFractionBinding, in: 0...0.5, step: 0.01)
                 .controlSize(.small)
 
-            Text("\(Int((preferences.launchpadIconPaddingFraction ?? 0) * 100))%")
+            Text(localizedPercent(preferences.launchpadIconPaddingFraction ?? 0))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
@@ -766,6 +772,8 @@ private struct LaunchpadIconOverrideRow: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
+        panel.title = String(localized: "Choose Launchpad Icon")
+        panel.prompt = String(localized: "Choose")
 
         if panel.runModal() == .OK, let url = panel.url {
             preferences.launchpadIconPath = url.path
@@ -830,7 +838,7 @@ private struct StartMenuIconOverrideRow: View {
             Slider(value: paddingFractionBinding, in: 0...0.5, step: 0.01)
                 .controlSize(.small)
 
-            Text("\(Int((preferences.startMenuIconPaddingFraction ?? 0) * 100))%")
+            Text(localizedPercent(preferences.startMenuIconPaddingFraction ?? 0))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
@@ -874,9 +882,19 @@ private struct StartMenuIconOverrideRow: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
+        panel.title = String(localized: "Choose Start Menu Icon")
+        panel.prompt = String(localized: "Choose")
 
         if panel.runModal() == .OK, let url = panel.url {
             preferences.startMenuIconPath = url.path
         }
     }
+}
+
+private func localizedPercent(_ fraction: CGFloat) -> String {
+    String(
+        format: String(localized: "%lld%%"),
+        locale: .autoupdatingCurrent,
+        Int64((fraction * 100).rounded())
+    )
 }

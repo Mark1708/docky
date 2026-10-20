@@ -134,7 +134,9 @@ struct BatteriesWidgetTileView: View {
                     .foregroundStyle(Color.primary.opacity(0.9))
             }
 
-            Text(batteries.isLoading ? "Loading Batteries" : "No Battery Data")
+            Text(batteries.isLoading
+                ? String(localized: "Loading Batteries")
+                : String(localized: "No Battery Data"))
                 .font(.system(size: layout.titleFontSize, weight: .semibold))
                 .foregroundStyle(Color.primary.opacity(0.96))
                 .multilineTextAlignment(.center)
@@ -176,7 +178,11 @@ struct BatteriesWidgetTileView: View {
             return "--"
         }
 
-        return "\(percentage)%"
+        return String(
+            format: String(localized: "%lld%%"),
+            locale: .autoupdatingCurrent,
+            Int64(percentage)
+        )
     }
 
     private func centerSymbolName(for device: BatteryDeviceSnapshot) -> String {

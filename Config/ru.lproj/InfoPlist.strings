@@ -1,0 +1,24 @@
+/* (No Comment) */
+"Docky Theme" = "Тема Docky";
+
+/* (No Comment) */
+"Docky Widget Bundle" = "Пакет виджета Docky";
+
+/* Privacy - AppleEvents Sending Usage Description */
+"NSAppleEventsUsageDescription" = "Docky требуется доступ к автоматизации для управления Finder, System Events и поддерживаемыми приложениями при выполнении действий с файлами, меню и окнами.";
+
+/* Privacy - Calendars Full Access Usage Description */
+"NSCalendarsFullAccessUsageDescription" = "Docky использует доступ к календарям, чтобы показывать ближайшее событие в виджете календаря.";
+
+/* Privacy - Calendars Usage Description */
+"NSCalendarsUsageDescription" = "Docky использует доступ к календарям, чтобы показывать ближайшее событие в виджете календаря.";
+
+/* Privacy - Location When In Use Usage Description */
+"NSLocationWhenInUseUsageDescription" = "Docky использует вашу геопозицию, чтобы показывать местную погоду в виджете погоды.";
+
+/* Privacy - Reminders Full Access Usage Description */
+"NSRemindersFullAccessUsageDescription" = "Docky использует доступ к напоминаниям, чтобы показывать открытые задачи в виджете напоминаний.";
+
+/* Privacy - Reminders Usage Description */
+"NSRemindersUsageDescription" = "Docky использует доступ к напоминаниям, чтобы показывать открытые задачи в виджете напоминаний.";
+

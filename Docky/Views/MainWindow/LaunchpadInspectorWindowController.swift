@@ -106,7 +106,7 @@ private final class LaunchpadInspectorPanel: NSPanel {
             backing: .buffered,
             defer: false
         )
-        title = "Launchpad"
+        title = String(localized: "Launchpad")
         isFloatingPanel = true
         becomesKeyOnlyIfNeeded = false
         // Sit one notch above the launchpad overlay (mainMenu + 1) so

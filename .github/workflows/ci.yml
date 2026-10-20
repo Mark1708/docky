@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-build-test:
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Validate localizations
+        run: python3 scripts/validate_localizations.py
+
+      - name: Test release preflight fixtures
+        run: python3 -m unittest discover -s scripts/tests
+
+      - name: Build unsigned Debug app
+        run: |
+          xcodebuild -project Docky.xcodeproj -scheme Docky \
+            -derivedDataPath build/DerivedData/CI-Build \
+            -configuration Debug -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO build
+
+      - name: Run app-hosted tests
+        env:
+          DOCKY_TEST_MODE: "1"
+        run: |
+          xcodebuild -project Docky.xcodeproj -scheme Docky \
+            -derivedDataPath build/DerivedData/CI-Tests \
+            -configuration Debug -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= test

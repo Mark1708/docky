@@ -40,11 +40,11 @@ final class ExternalWidgetLoader {
 
         var localizedReason: String {
             switch self {
-            case .bundleNotOpenable: "Bundle could not be opened."
-            case .missingExecutable: "Bundle has no compiled binary in Contents/MacOS/."
-            case .loadCallFailed: "Bundle.load() failed. Check code signing."
-            case .missingPrincipalClass: "Info.plist is missing NSPrincipalClass."
-            case .notConformingToProtocol: "Principal class does not conform to DockyWidgetPlugin."
+            case .bundleNotOpenable: String(localized: "Bundle could not be opened.")
+            case .missingExecutable: String(localized: "Bundle has no compiled binary in Contents/MacOS/.")
+            case .loadCallFailed: String(localized: "Bundle.load() failed. Check code signing.")
+            case .missingPrincipalClass: String(localized: "Info.plist is missing NSPrincipalClass.")
+            case .notConformingToProtocol: String(localized: "Principal class does not conform to DockyWidgetPlugin.")
             }
         }
     }
@@ -199,9 +199,14 @@ final class ExternalWidgetLoader {
         }
 
         let plugin = pluginType.init()
-        let settingsSchema = ExternalWidgetSettingsManifest.load(from: bundle)
+        let languageIdentifier = AppLocalization.effectiveLanguageIdentifier
+        let settingsSchema = ExternalWidgetSettingsManifest.load(
+            from: bundle,
+            languageIdentifier: languageIdentifier
+        )
         let registration = ExternalWidgetRegistration(
             plugin: plugin,
+            bundle: bundle,
             bundleURL: url,
             settingsSchema: settingsSchema
         )

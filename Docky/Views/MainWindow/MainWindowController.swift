@@ -23,6 +23,8 @@ final class MainWindowController: NSWindowController {
         guard let mainWindow = window as? MainWindow else {
             return
         }
+        mainWindow.title = String(localized: "Docky")
+
 
         dockEditorOverlayWindowController = DockEditorOverlayWindowController(mainWindow: mainWindow)
         dockEditorHintWindowController = DockEditorHintWindowController(mainWindow: mainWindow)

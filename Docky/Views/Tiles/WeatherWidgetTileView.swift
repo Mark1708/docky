@@ -268,10 +268,18 @@ private struct WeatherWidgetContentView: View {
         var parts: [String] = [snapshot.conditionDescription]
 
         if let high = snapshot.highTemperature {
-            parts.append("H: \(Int(high.rounded()))°")
+            parts.append(String(
+                format: String(localized: "H: %lld°"),
+                locale: .autoupdatingCurrent,
+                Int64(high.rounded())
+            ))
         }
         if let low = snapshot.lowTemperature {
-            parts.append("L: \(Int(low.rounded()))°")
+            parts.append(String(
+                format: String(localized: "L: %lld°"),
+                locale: .autoupdatingCurrent,
+                Int64(low.rounded())
+            ))
         }
 
         return parts.joined(separator: " • ")
@@ -305,12 +313,12 @@ private struct WeatherWidgetContentView: View {
 
             VStack(spacing: 1) {
                 if let high = day.highTemperature {
-                    Text("\(Int(high.rounded()))°")
+                    Text(temperatureText(high))
                         .font(.system(size: layout.forecastTempFontSize, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.96))
                 }
                 if let low = day.lowTemperature {
-                    Text("\(Int(low.rounded()))°")
+                    Text(temperatureText(low))
                         .font(.system(size: layout.forecastTempFontSize, weight: .medium))
                         .foregroundStyle(.white.opacity(0.66))
                 }
@@ -322,6 +330,14 @@ private struct WeatherWidgetContentView: View {
         .background(
             RoundedRectangle(cornerRadius: layout.metricCornerRadius, style: .continuous)
                 .fill(Color.white.opacity(0.12))
+        )
+    }
+
+    private func temperatureText(_ temperature: Double) -> String {
+        String(
+            format: String(localized: "%lld°"),
+            locale: .autoupdatingCurrent,
+            Int64(temperature.rounded())
         )
     }
 
@@ -507,9 +523,9 @@ private struct WeatherWidgetContentView: View {
     private var placeholderTitle: String {
         switch authorizationStatus {
         case .denied, .restricted:
-            "Enable Location"
+            String(localized: "Enable Location")
         default:
-            isLoading ? "Loading Weather" : "Weather"
+            isLoading ? String(localized: "Loading Weather") : String(localized: "Weather")
         }
     }
 

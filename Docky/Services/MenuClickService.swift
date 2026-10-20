@@ -12,7 +12,11 @@ final class MenuClickService {
     private init() {}
 
     @discardableResult
-    func perform(action: CatalogActionDefinition, context: CatalogActionContext) async -> Bool {
+    func perform(
+        action: CatalogActionDefinition,
+        context: CatalogActionContext,
+        actionTitle: String
+    ) async -> Bool {
         guard let targetApp = action.targetApp,
               let path = action.path,
               !path.isEmpty else {
@@ -26,7 +30,7 @@ final class MenuClickService {
 
         let processName = runningApplicationName(for: targetApp)
         guard let processName else {
-            presentUnavailableAlert(targetApp: targetApp, actionTitle: action.title)
+            presentUnavailableAlert(targetApp: targetApp, actionTitle: actionTitle)
             return false
         }
 
@@ -35,7 +39,10 @@ final class MenuClickService {
         }
 
         guard PermissionsService.shared.status(for: .accessibility) == .granted else {
-            PermissionsService.shared.presentPermissionAlert(for: .accessibility, actionTitle: action.title)
+            PermissionsService.shared.presentPermissionAlert(
+                for: .accessibility,
+                actionTitle: actionTitle
+            )
             return false
         }
 
@@ -44,7 +51,10 @@ final class MenuClickService {
         }
 
         guard PermissionsService.shared.status(for: .systemEventsAutomation) == .granted else {
-            PermissionsService.shared.presentPermissionAlert(for: .systemEventsAutomation, actionTitle: action.title)
+            PermissionsService.shared.presentPermissionAlert(
+                for: .systemEventsAutomation,
+                actionTitle: actionTitle
+            )
             return false
         }
 
@@ -54,7 +64,7 @@ final class MenuClickService {
             path: path,
             requiresFrontmost: action.requiresFrontmost,
             holdOption: action.holdOption,
-            actionTitle: action.title
+            actionTitle: actionTitle
         )
     }
 
@@ -73,8 +83,13 @@ final class MenuClickService {
 
     private func presentUnavailableAlert(targetApp: String, actionTitle: String) {
         let alert = NSAlert()
-        alert.messageText = "Menu action unavailable"
-        alert.informativeText = "Docky couldn't find a running process for \(targetApp) to perform \(actionTitle.lowercased())."
+        alert.messageText = String(localized: "Menu action unavailable")
+        alert.informativeText = String(
+            format: String(localized: "Docky couldn't find a running process for %@ to perform %@."),
+            locale: .autoupdatingCurrent,
+            targetApp,
+            actionTitle
+        )
         alert.alertStyle = .warning
         alert.runModal()
     }

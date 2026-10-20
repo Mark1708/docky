@@ -299,12 +299,12 @@ struct PermissionsView: View {
 
     private var grantMethodLabel: String? {
         switch grantMethod {
-        case .fullDiskAccess: return "Full Disk Access"
-        case .automation: return "Automation"
-        case .accessibility: return "Accessibility"
-        case .screenCapture: return "Screen Recording"
-        case .location: return "Location"
-        case .none: return nil
+        case .fullDiskAccess: String(localized: "Full Disk Access")
+        case .automation: String(localized: "Automation")
+        case .accessibility: String(localized: "Accessibility")
+        case .screenCapture: String(localized: "Screen Recording")
+        case .location: String(localized: "Location")
+        case .none: nil
         }
     }
 
@@ -342,40 +342,40 @@ struct PermissionsView: View {
     private var systemSettingsButtonTitle: String {
         switch step {
         case .finderAutomation:
-            return "Open System Settings (Automation)"
+            String(localized: "Open System Settings (Automation)")
         case .systemEventsAutomation:
-            return "Open System Settings (Automation)"
+            String(localized: "Open System Settings (Automation)")
         case .userFolders:
-            return "Open System Settings (Full Disk Access)"
+            String(localized: "Open System Settings (Full Disk Access)")
         case .accessibility:
-            return "Open System Settings (Accessibility)"
+            String(localized: "Open System Settings (Accessibility)")
         case .screenCapture:
-            return "Open System Settings (Screen Recording)"
+            String(localized: "Open System Settings (Screen Recording)")
         case .location:
-            return "Open System Settings (Location Services)"
+            String(localized: "Open System Settings (Location Services)")
         case .calendar:
-            return "Open System Settings (Calendars)"
+            String(localized: "Open System Settings (Calendars)")
         case .reminders:
-            return "Open System Settings (Reminders)"
+            String(localized: "Open System Settings (Reminders)")
         }
     }
 
     private var requestButtonTitle: String {
         switch step {
         case .finderAutomation:
-            return "Request Finder Access"
+            String(localized: "Request Finder Access")
         case .systemEventsAutomation:
-            return "Request System Events Access"
+            String(localized: "Request System Events Access")
         case .screenCapture:
-            return "Request Screen Recording Access"
+            String(localized: "Request Screen Recording Access")
         case .location:
-            return "Request Location Access"
+            String(localized: "Request Location Access")
         case .calendar:
-            return "Request Calendar Access"
+            String(localized: "Request Calendar Access")
         case .reminders:
-            return "Request Reminders Access"
+            String(localized: "Request Reminders Access")
         case .userFolders, .accessibility:
-            return "Request Access"
+            String(localized: "Request Access")
         }
     }
 
@@ -489,32 +489,32 @@ struct PermissionsView: View {
     private var stepSummary: String {
         switch status {
         case .granted:
-            return "This permission is already enabled. You can continue when ready."
+            String(localized: "This permission is already enabled. You can continue when ready.")
         case .denied:
-            return "macOS has this disabled right now. Open System Settings, enable it, then come back and re-check."
+            String(localized: "macOS has this disabled right now. Open System Settings, enable it, then come back and re-check.")
         case .notDetermined:
-            return "Docky will guide you through the fastest way to enable this on your Mac."
+            String(localized: "Docky will guide you through the fastest way to enable this on your Mac.")
         }
     }
 
     private var mediaCaption: String {
         switch step {
         case .userFolders:
-            return "Preview pinned folders instantly"
+            String(localized: "Preview pinned folders instantly")
         case .finderAutomation:
-            return "Reveal and manage files in Finder"
+            String(localized: "Reveal and manage files in Finder")
         case .accessibility:
-            return "Control interface actions smoothly"
+            String(localized: "Control interface actions smoothly")
         case .systemEventsAutomation:
-            return "Run curated menu actions quickly"
+            String(localized: "Run curated menu actions quickly")
         case .screenCapture:
-            return "Capture live window previews"
+            String(localized: "Capture live window previews")
         case .location:
-            return "Show local weather in the dock"
+            String(localized: "permissions.location.caption", defaultValue: "Show local weather in the dock")
         case .calendar:
-            return "Show upcoming events in the dock"
+            String(localized: "Show upcoming events in the dock")
         case .reminders:
-            return "Show open tasks in the dock"
+            String(localized: "Show open tasks in the dock")
         }
     }
 
@@ -537,18 +537,18 @@ struct PermissionsView: View {
 
     private var bottomSummary: String {
         if step == .finderAutomation {
-            return "Finder access can be requested here now, so reveal-in-Finder and Trash actions work without waiting for the first macOS prompt."
+            return String(localized: "Finder access can be requested here now, so reveal-in-Finder and Trash actions work without waiting for the first macOS prompt.")
         }
 
         if step == .systemEventsAutomation {
-            return "System Events access can be requested here now for curated menu-click actions. Accessibility should be enabled too, since UI scripting depends on both permissions."
+            return String(localized: "System Events access can be requested here now for curated menu-click actions. Accessibility should be enabled too, since UI scripting depends on both permissions.")
         }
 
         if step.isRequiredAtLaunch {
-            return "This permission unlocks a core Docky feature, but you can skip it for now and grant it later."
+            return String(localized: "This permission unlocks a core Docky feature, but you can skip it for now and grant it later.")
         }
 
-        return "This permission unlocks an optional feature and can be granted later from Settings."
+        return String(localized: "This permission unlocks an optional feature and can be granted later from Settings.")
     }
 
     private var statusBadge: some View {
@@ -567,11 +567,11 @@ struct PermissionsView: View {
     private var statusLabel: String {
         switch status {
         case .granted:
-            return "Granted"
+            String(localized: "Granted")
         case .denied:
-            return "Needs Attention"
+            String(localized: "Needs Attention")
         case .notDetermined:
-            return "Not Yet Granted"
+            String(localized: "Not Yet Granted")
         }
     }
 

@@ -350,7 +350,7 @@ private struct StartMenuView: View {
     }
 
     private var appsSectionTitle: String {
-        query.isEmpty ? "Recent Apps" : "Apps"
+        query.isEmpty ? String(localized: "Recent Apps") : String(localized: "Apps")
     }
 
     /// Map persisted bundle IDs to AppTile by resolving each via
@@ -399,14 +399,14 @@ private struct StartMenuView: View {
     private static let homeFolders: [HomeFolderShortcut] = {
         let home = FileManager.default.homeDirectoryForCurrentUser
         return [
-            HomeFolderShortcut(name: "Home", url: home),
-            HomeFolderShortcut(name: "Documents", url: home.appendingPathComponent("Documents", isDirectory: true)),
-            HomeFolderShortcut(name: "Downloads", url: home.appendingPathComponent("Downloads", isDirectory: true)),
-            HomeFolderShortcut(name: "Desktop", url: home.appendingPathComponent("Desktop", isDirectory: true)),
-            HomeFolderShortcut(name: "Pictures", url: home.appendingPathComponent("Pictures", isDirectory: true)),
-            HomeFolderShortcut(name: "Movies", url: home.appendingPathComponent("Movies", isDirectory: true)),
-            HomeFolderShortcut(name: "Music", url: home.appendingPathComponent("Music", isDirectory: true)),
-            HomeFolderShortcut(name: "Applications", url: URL(fileURLWithPath: "/Applications", isDirectory: true)),
+            HomeFolderShortcut(name: String(localized: "Home"), url: home),
+            HomeFolderShortcut(name: String(localized: "Documents"), url: home.appendingPathComponent("Documents", isDirectory: true)),
+            HomeFolderShortcut(name: String(localized: "Downloads"), url: home.appendingPathComponent("Downloads", isDirectory: true)),
+            HomeFolderShortcut(name: String(localized: "Desktop"), url: home.appendingPathComponent("Desktop", isDirectory: true)),
+            HomeFolderShortcut(name: String(localized: "Pictures"), url: home.appendingPathComponent("Pictures", isDirectory: true)),
+            HomeFolderShortcut(name: String(localized: "Movies"), url: home.appendingPathComponent("Movies", isDirectory: true)),
+            HomeFolderShortcut(name: String(localized: "Music"), url: home.appendingPathComponent("Music", isDirectory: true)),
+            HomeFolderShortcut(name: String(localized: "Applications"), url: URL(fileURLWithPath: "/Applications", isDirectory: true)),
         ]
     }()
 
@@ -587,7 +587,7 @@ private struct StartMenuView: View {
                     service.showsAllApps.toggle()
                 } label: {
                     HStack(spacing: 3) {
-                        Text(service.showsAllApps ? "Hide" : "Show All")
+                        Text(service.showsAllApps ? String(localized: "Hide") : String(localized: "Show All"))
                         Image(systemName: service.showsAllApps ? "chevron.left" : "chevron.right")
                             .font(.system(size: 9, weight: .semibold))
                     }
@@ -670,7 +670,7 @@ private struct StartMenuView: View {
         return sorted.filter { $0.displayName.localizedCaseInsensitiveContains(query) }
     }
 
-    private func sectionHeader(_ title: String) -> some View {
+    private func sectionHeader(_ title: LocalizedStringKey) -> some View {
         HStack {
             Text(title)
                 .font(.system(size: 12, weight: .semibold))
@@ -793,10 +793,10 @@ private enum SystemAction {
 
     var title: String {
         switch self {
-        case .sleep: return "Sleep"
-        case .restart: return "Restart..."
-        case .shutDown: return "Shut Down..."
-        case .logOut: return "Log Out..."
+        case .sleep: String(localized: "Sleep")
+        case .restart: String(localized: "Restart…")
+        case .shutDown: String(localized: "Shut Down…")
+        case .logOut: String(localized: "Log Out…")
         }
     }
 

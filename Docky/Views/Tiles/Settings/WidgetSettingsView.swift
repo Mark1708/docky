@@ -164,8 +164,11 @@ struct WidgetSettingsTextField: View {
 
     var body: some View {
         WidgetSettingsRow(title: title) {
-            TextField("", text: $text)
-                .textFieldStyle(.roundedBorder)
+            TextField(text: $text) {
+                Text(title)
+            }
+            .labelsHidden()
+            .textFieldStyle(.roundedBorder)
         }
     }
 }
@@ -178,18 +181,23 @@ struct WidgetSettingsNumberField: View {
 
     var body: some View {
         WidgetSettingsRow(title: title) {
-            TextField("", text: $text)
-                .textFieldStyle(.roundedBorder)
-                .onAppear { text = value.map { formatted($0) } ?? "" }
-                .onChange(of: text) { newValue in
-                    let trimmed = newValue.trimmingCharacters(in: .whitespaces)
-                    value = trimmed.isEmpty ? nil : Double(trimmed)
+            TextField(text: $text) {
+                Text(title)
+            }
+            .labelsHidden()
+            .textFieldStyle(.roundedBorder)
+            .onAppear {
+                text = value.map { LocalizedNumberInput.format($0) } ?? ""
+            }
+            .onChange(of: text) { newValue in
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                if trimmed.isEmpty {
+                    value = nil
+                } else if let parsed = LocalizedNumberInput.parse(trimmed) {
+                    value = parsed
                 }
+            }
         }
-    }
-
-    private func formatted(_ number: Double) -> String {
-        number == number.rounded() ? String(Int(number)) : String(number)
     }
 }
 
@@ -200,10 +208,12 @@ struct WidgetSettingsPicker: View {
 
     var body: some View {
         WidgetSettingsRow(title: title) {
-            Picker("", selection: $selection) {
+            Picker(selection: $selection) {
                 ForEach(options, id: \.value) { option in
                     Text(option.label).tag(option.value)
                 }
+            } label: {
+                Text(title)
             }
             .labelsHidden()
             .pickerStyle(.menu)

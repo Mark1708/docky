@@ -1,46 +1,50 @@
 # External Widget Bundles
 
-Docky loads community-supplied widgets from native macOS bundles dropped into a known directory. This document describes the contract a bundle must satisfy and the constraints on building one.
+Docky loads community widgets as native macOS bundles. This contract is backward-compatible: the original view method remains required, while settings and locale-aware rendering are optional.
 
 ## Install location
 
-```
+```text
 ~/Library/Application Support/Docky/Widgets/
 ```
 
-The directory is created on first launch. Drop a `*.dockywidget` bundle into it and restart Docky. Discovery happens once at `applicationDidFinishLaunching`, before persisted dock contents are rehydrated, so external widgets can be referenced by existing layouts without losing their slot.
+Use the `.dockywidget` extension and restart Docky after installing, replacing, or removing a bundle. Discovery runs once during application startup.
 
 ## Bundle layout
 
-`*.dockywidget` is a regular macOS bundle. Minimum layout:
-
-```
+```text
 MyWidget.dockywidget/
   Contents/
-    Info.plist        # NSPrincipalClass = "<module>.<class>"
-    MacOS/MyWidget    # compiled binary
+    Info.plist
+    MacOS/
+      MyWidget
+    Resources/
+      settings.json
+      en.lproj/
+        DockyWidget.strings
+      ru.lproj/
+        DockyWidget.strings
 ```
 
-In `Info.plist`, set `NSPrincipalClass` to the fully-qualified Swift name of the class that implements `DockyWidgetPlugin`, e.g. `MyWidget.MyWidget`.
+Only `Info.plist` and the compiled executable are required. `settings.json` and localization resources are optional.
 
-## The DockyWidgetPlugin contract
+`Info.plist` must set `NSPrincipalClass` to the fully qualified principal class name, for example `MyWidget.MyWidget`.
 
-The principal class must inherit from `NSObject` and conform to `DockyWidgetPlugin`. The protocol is `@objc` so plugins do not need to link against Docky's Swift module — they only need a copy of the protocol declaration in their own sources.
+## Plugin contract
 
-The `@objc(DockyWidgetPlugin)` attribute is required, not optional. Without the explicit name, Swift module-qualifies the Obj-C protocol name (`<Module>.DockyWidgetPlugin`) and Docky's runtime check fails to reconcile it with its own copy.
+The principal class must inherit from `NSObject` and conform to a copied declaration of `DockyWidgetPlugin`. The explicit Objective-C protocol name is required; without `@objc(DockyWidgetPlugin)`, Docky cannot match the plugin's protocol at runtime.
 
 ```swift
 import AppKit
-import SwiftUI
 
 @objc(DockyWidgetPlugin) public protocol DockyWidgetPlugin: AnyObject {
     @objc init()
 
-    var identifier: String { get }              // e.g. "com.example.MyWidget"
+    var identifier: String { get }
     var displayName: String { get }
-    var systemImageName: String { get }         // SF Symbol shown in the dock editor
+    var systemImageName: String { get }
 
-    var defaultSpanValue: Int { get }           // 1...4 tiles
+    var defaultSpanValue: Int { get }
     var supportedSpanValues: [Int] { get }
     var expansionWidthTiles: Int { get }
     var expansionHeightTiles: Int { get }
@@ -48,9 +52,8 @@ import SwiftUI
     var includesInPalette: Bool { get }
     var includesInSmartStack: Bool { get }
 
-    @objc optional var author: String { get }   // shown in Widget Store, defaults to "Unknown"
-    @objc optional var version: String { get }  // shown in Widget Store, defaults to "1.0"
-    @objc optional func makeSettingsView() -> NSView
+    @objc optional var author: String { get }
+    @objc optional var version: String { get }
 
     func makeView(
         cornerRadius: CGFloat,
@@ -59,20 +62,140 @@ import SwiftUI
         isExpanded: Bool,
         isExpandedPreviewOpen: Bool
     ) -> NSView
+
+    @objc optional func makeView(
+        cornerRadius: CGFloat,
+        renderedSpanValue: Int,
+        isWithinStack: Bool,
+        isExpanded: Bool,
+        isExpandedPreviewOpen: Bool,
+        configuration: [String: Any]
+    ) -> NSView
+
+    @objc optional func makeView(
+        cornerRadius: CGFloat,
+        renderedSpanValue: Int,
+        isWithinStack: Bool,
+        isExpanded: Bool,
+        isExpandedPreviewOpen: Bool,
+        configuration: [String: Any],
+        localeIdentifier: String
+    ) -> NSView
 }
 ```
 
-`makeView` typically returns `NSHostingView(rootView: ...)` wrapping a SwiftUI view, but any `NSView` works.
+`makeView` may return an `NSHostingView` or any other `NSView`.
 
-### Optional per-widget settings UI
+Docky dispatches view creation in this order:
 
-If your widget needs its own controls, implement `makeSettingsView()`. Docky surfaces a gear button for installed widgets that provide it and opens the returned `NSView` in a dedicated settings window.
+1. Configured view with `localeIdentifier`.
+2. Configured view without `localeIdentifier`.
+3. Required legacy view.
 
-- Return a fresh view each time `makeSettingsView()` is called. Docky may reopen the window after a previous one was closed, and reusing the same `NSView` instance can run into AppKit reparenting issues.
-- Persist plugin-specific settings inside the widget bundle itself (for example with `UserDefaults`). Docky does not serialize or validate custom widget settings.
-- Keep the view compact and self-contained; Docky sizes the window from the view's fitting size and allows the user to resize it afterward.
+The locale identifier is the effective Docky interface language, such as `en`, `ru`, or a regional identifier. It is not inserted into `configuration`, so it cannot collide with a settings field ID.
 
-A minimal plugin:
+## Identity and metadata
+
+- `identifier` is persisted as `external:<identifier>`. Keep it stable across releases.
+- `displayName` is the literal fallback display name.
+- `systemImageName` is an SF Symbol used by Docky's editor and settings UI.
+- Span values are integers from 1 through 4.
+- `author` defaults to Docky's localized “Unknown” label.
+- `version` defaults to `1.0`.
+
+Changing an identifier breaks existing persisted placements. Author, version, identifiers, field IDs, and option values are never localized by Docky.
+
+## Declarative settings
+
+Docky owns the settings UI and persistence. A plugin opts in by shipping `Contents/Resources/settings.json`.
+
+```json
+{
+  "fields": [
+    {
+      "id": "headline",
+      "type": "text",
+      "label": "Headline",
+      "labelKey": "settings.headline",
+      "default": "Hello"
+    },
+    {
+      "id": "scale",
+      "type": "number",
+      "label": "Scale",
+      "labelKey": "settings.scale",
+      "default": 1.5
+    },
+    {
+      "id": "showIcon",
+      "type": "toggle",
+      "label": "Show Icon",
+      "labelKey": "settings.showIcon",
+      "default": true
+    },
+    {
+      "id": "style",
+      "type": "select",
+      "label": "Style",
+      "labelKey": "settings.style",
+      "default": "compact",
+      "options": [
+        {
+          "value": "compact",
+          "label": "Compact",
+          "labelKey": "settings.style.compact"
+        },
+        {
+          "value": "expanded",
+          "label": "Expanded",
+          "labelKey": "settings.style.expanded"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Supported field types:
+
+| Type | Stored Cocoa value |
+|---|---|
+| `text` | `String` |
+| `number` | `NSNumber` / `Double` |
+| `toggle` | `NSNumber` / `Bool` |
+| `select` | `String` option `value` |
+
+Malformed fields are skipped. Missing labels fall back to the field `id`; missing option labels fall back to the option `value`. Unknown field types are skipped. Docky passes the persisted values to configured view methods as Cocoa primitives in `configuration`.
+
+Do not change field IDs or option values after release. They are persistence and behavior tokens, not display text.
+
+## Plugin-owned localization
+
+Put widget translations in:
+
+```text
+Contents/Resources/<language>.lproj/DockyWidget.strings
+```
+
+Reserved and manifest keys share this table:
+
+```text
+"widget.displayName" = "My localized widget name";
+"settings.headline" = "Headline";
+"settings.style.compact" = "Compact";
+```
+
+`widget.displayName` localizes the plugin display name. `labelKey` localizes a field or option label.
+
+Docky resolves every key independently:
+
+1. Effective regional or base interface language.
+2. English.
+3. Literal `displayName`, `label`, field `id`, or option `value`.
+
+This per-key fallback allows a partial Russian table to use English for only its missing keys. Plugin keys are always read from the plugin bundle, never Docky's main bundle. Language changes take effect after restart because plugin discovery and metadata registration run once.
+
+## Minimal legacy plugin
 
 ```swift
 import AppKit
@@ -85,7 +208,6 @@ public final class MyWidget: NSObject, DockyWidgetPlugin {
     public var identifier: String { "com.example.MyWidget" }
     public var displayName: String { "My Widget" }
     public var systemImageName: String { "sparkles" }
-
     public var defaultSpanValue: Int { 3 }
     public var supportedSpanValues: [Int] { [1, 2, 3] }
     public var expansionWidthTiles: Int { 3 }
@@ -93,10 +215,6 @@ public final class MyWidget: NSObject, DockyWidgetPlugin {
     public var isExpandable: Bool { true }
     public var includesInPalette: Bool { true }
     public var includesInSmartStack: Bool { false }
-
-    public func makeSettingsView() -> NSView {
-        NSHostingView(rootView: Text("Settings go here").padding())
-    }
 
     public func makeView(
         cornerRadius: CGFloat,
@@ -110,27 +228,24 @@ public final class MyWidget: NSObject, DockyWidgetPlugin {
 }
 ```
 
-This repo includes a worked example under `ExternalWidgets/IndividualSettingsWidget/`, plus `scripts/build_individual_settings_widget.sh` to compile it into a real `.dockywidget` bundle for local testing.
+This legacy implementation remains valid. Add `settings.json` and one or both configured overloads only when needed.
 
-## Build settings
+## Build and runtime constraints
 
-- **Bundle type:** `loadable bundle` (Xcode template "Bundle"), not framework.
-- **Wrapper extension:** `dockywidget`.
-- **Deployment target:** macOS 14.0 or later (Docky's minimum).
-- **Swift version:** must match the compiler Docky was built with. Mixing toolchains breaks Swift class metadata; the loader will fail on principal-class lookup or protocol conformance.
-- **Code signing:** sign with a Developer ID certificate. Docky ships the `com.apple.security.cs.disable-library-validation` entitlement, so bundles signed by other teams load successfully under hardened runtime. Unsigned bundles still fail because macOS itself rejects them.
+- Bundle type: loadable bundle, not framework.
+- Wrapper extension: `dockywidget`.
+- Deployment target: macOS 14.0 or later.
+- Swift compiler: compatible with the compiler used to build Docky.
+- Signing: the bundle must satisfy macOS code-signing policy. Docky disables library validation under hardened runtime so other teams' valid bundles can load, but this does not bypass Gatekeeper or invalid signatures.
 
-## Identifiers and persistence
+## Loader failures
 
-Each widget is persisted in Docky's preferences as `external:<identifier>`. Keep `identifier` stable across releases of your widget; changing it forfeits the user's pin in the dock layout. Use reverse-DNS for namespacing (`com.your-org.WidgetName`).
+Docky skips a failed bundle rather than blocking application launch. Console logs under subsystem `gt.quintero.Docky`, category `ExternalWidgetLoader`, distinguish:
 
-If a bundle is removed, any persisted dock placement referring to it shows a small "Missing widget" placeholder until the user removes it manually.
-
-## Failure modes the loader logs (not crashes)
-
-- Bundle can't be opened (`Bundle(url:)` returns nil).
-- `bundle.load()` returns false (code signing / library validation rejected).
-- `NSPrincipalClass` missing in `Info.plist`.
+- Bundle cannot be opened.
+- Compiled executable is missing.
+- `Bundle.load()` fails.
+- `NSPrincipalClass` is missing.
 - Principal class does not conform to `DockyWidgetPlugin`.
 
-Filter Console.app on subsystem `gt.quintero.Docky` and category `ExternalWidgetLoader` to see what happened.
+If a loaded widget file disappears, Docky preserves its identifier and displays a localized file-missing decoration until the layout is updated.

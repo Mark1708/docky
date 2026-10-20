@@ -14,41 +14,50 @@ struct UpdatesSettingsView: View {
         Form {
             Section("Updates") {
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Button("Check for Updates…") {
-                            appUpdateService.checkForUpdates()
-                        }
-                        .disabled(!appUpdateService.canCheckForUpdates)
-
-                        Spacer()
+                    if !appUpdateService.isAvailable {
+                        Text("Updates are unavailable in this local build.")
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
 
-                    Toggle("Automatically Check for Updates", isOn: $appUpdateService.automaticallyChecksForUpdates)
-                        .font(.headline)
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Button("Check for Updates…") {
+                                appUpdateService.checkForUpdates()
+                            }
+                            .disabled(!appUpdateService.canCheckForUpdates)
 
-                    Toggle("Automatically Download Updates", isOn: $appUpdateService.automaticallyDownloadsUpdates)
-                        .font(.headline)
-                        .disabled(!appUpdateService.automaticallyChecksForUpdates)
+                            Spacer()
+                        }
 
-                    HStack {
-                        Text("Check Interval")
+                        Toggle("Automatically Check for Updates", isOn: $appUpdateService.automaticallyChecksForUpdates)
                             .font(.headline)
 
-                        Spacer()
+                        Toggle("Automatically Download Updates", isOn: $appUpdateService.automaticallyDownloadsUpdates)
+                            .font(.headline)
+                            .disabled(!appUpdateService.automaticallyChecksForUpdates)
 
-                        Picker("Check Interval", selection: $appUpdateService.updateCheckInterval) {
-                            ForEach(updateIntervals, id: \.self) { interval in
-                                Text(title(for: interval)).tag(interval)
+                        HStack {
+                            Text("Check Interval")
+                                .font(.headline)
+
+                            Spacer()
+
+                            Picker("Check Interval", selection: $appUpdateService.updateCheckInterval) {
+                                ForEach(updateIntervals, id: \.self) { interval in
+                                    Text(title(for: interval)).tag(interval)
+                                }
                             }
+                            .pickerStyle(.menu)
+                            .labelsHidden()
+                            .disabled(!appUpdateService.automaticallyChecksForUpdates)
                         }
-                        .pickerStyle(.menu)
-                        .labelsHidden()
-                        .disabled(!appUpdateService.automaticallyChecksForUpdates)
-                    }
 
-                    Text("Docky can periodically check getdocky.com for new signed releases. Sparkle stores these update preferences directly in your user defaults.")
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                        Text("Docky can periodically check this fork's GitHub Releases for new signed releases. Sparkle stores these update preferences directly in your user defaults.")
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .disabled(!appUpdateService.isAvailable)
                 }
                 .padding(.vertical, 4)
             }
@@ -59,15 +68,15 @@ struct UpdatesSettingsView: View {
     private func title(for interval: TimeInterval) -> String {
         switch interval {
         case 3600:
-            "Hourly"
+            String(localized: "Hourly")
         case 86_400:
-            "Daily"
+            String(localized: "Daily")
         case 604_800:
-            "Weekly"
+            String(localized: "Weekly")
         case 2_629_800:
-            "Monthly"
+            String(localized: "Monthly")
         default:
-            "Custom"
+            String(localized: "Custom")
         }
     }
 }

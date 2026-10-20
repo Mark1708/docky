@@ -15,11 +15,11 @@ custom icons, and scripted actions.
 [![Platform](https://img.shields.io/badge/macOS-14%2B-black?logo=apple)](https://getdocky.com)
 [![Universal](https://img.shields.io/badge/Apple%20Silicon%20%26%20Intel-Universal-orange)](https://getdocky.com)
 [![Website](https://img.shields.io/badge/getdocky.com-Download-brightgreen)](https://getdocky.com)
-[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/josejuanqm)
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/josejuanqm)
+[![Upstream Sponsor](https://img.shields.io/badge/Upstream%20Sponsor-%E2%9D%A4-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/josejuanqm)
+[![Support upstream](https://img.shields.io/badge/Support%20upstream-Buy%20Me%20a%20Coffee-ffdd00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/josejuanqm)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/vAwVNtPSgE)
 
-[**Download**](https://getdocky.com) &nbsp;·&nbsp; [**Website**](https://getdocky.com) &nbsp;·&nbsp; [**Build from source**](#building-from-source)
+[**Fork releases**](https://github.com/Mark1708/docky/releases) &nbsp;·&nbsp; [**Upstream website**](https://getdocky.com) &nbsp;·&nbsp; [**Build from source**](#building-from-source)
 
 </div>
 
@@ -90,18 +90,17 @@ Optionally show running apps inline so a folder doubles as a live workspace.
 
 ## Download
 
-Get the latest notarized build from [getdocky.com](https://getdocky.com), or grab
-a release from the [Releases page](https://github.com/josejuanqm/docky/releases).
+Fork builds are published on the
+[Mark1708/docky Releases page](https://github.com/Mark1708/docky/releases).
+The first fork build is installed manually; automatic updates remain disabled
+unless a build is produced through this fork's signed release channel.
 
-### Homebrew
+The website, Homebrew tap, and existing Sparkle channel at `getdocky.com` are
+operated by the upstream project and do not distribute this fork:
 
 ```sh
 brew install --cask josejuanqm/tap/docky
 ```
-
-Updates are delivered in-app via Sparkle. No tap trust step is needed for a normal
-install. If you run Homebrew with `HOMEBREW_REQUIRE_TAP_TRUST=1`, trust the cask
-first with `brew trust --cask josejuanqm/tap/docky`.
 
 Docky needs **Accessibility** and **Screen Recording** permissions to manage
 windows and render previews. It prompts for these on first launch.
@@ -115,7 +114,7 @@ windows and render previews. It prompts for these on first launch.
 ## Building from source
 
 ```sh
-git clone https://github.com/josejuanqm/docky.git
+git clone https://github.com/Mark1708/docky.git
 cd docky
 open Docky.xcodeproj
 ```
@@ -128,24 +127,28 @@ automatically on first build.
 - macOS 14.0 (Sonoma) or later
 - Xcode 16 or later to build from source
 
+### Language
+
+Docky follows the macOS app language selected in **System Settings → General →
+Language & Region → Applications**. Russian and English are complete; Spanish
+uses English for untranslated strings, and unsupported languages fall back to
+English. Restart Docky after changing its app language.
+
 ## Documentation
 
 - [External widget bundles](docs/external-widgets.md): the `.dockywidget` bundle
   contract and how to build community widgets.
 
-## Supporting Docky
+## Supporting upstream Docky
 
-Docky is free and open source with no paid tier. If it earns a place in your
-Dock, you can help fund ongoing development:
+This fork does not collect sponsorship. These links support the original Docky
+project and its author, Jose Quintero:
 
-- **[GitHub Sponsors](https://github.com/sponsors/josejuanqm)**: one-time or
-  monthly, with tiers from ☕ Coffee to ❤️ Patron.
-- **[Buy Me a Coffee](https://buymeacoffee.com/josejuanqm)**: a quick one-off
-  thank-you.
+- **[GitHub Sponsors](https://github.com/sponsors/josejuanqm)**
+- **[Buy Me a Coffee](https://buymeacoffee.com/josejuanqm)**
 
-Sponsors also get a supporter role in the [Docky Discord](https://discord.gg/vAwVNtPSgE).
-Supporters are credited in [SUPPORTERS.md](SUPPORTERS.md); sponsoring teams can
-have their logo featured there. Every bit helps keep Docky maintained and free.
+The [Docky Discord](https://discord.gg/vAwVNtPSgE) and
+[SUPPORTERS.md](SUPPORTERS.md) also belong to the upstream community.
 
 ## Dependencies
 
@@ -155,3 +158,5 @@ have their logo featured there. Every bit helps keep Docky maintained and free.
 ## License
 
 [GNU General Public License v3.0](LICENSE). Copyright (C) 2026 Jose Quintero.
+This fork preserves attribution to the
+[upstream project](https://github.com/josejuanqm/docky).

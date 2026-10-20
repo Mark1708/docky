@@ -55,6 +55,18 @@ import SwiftUI
         isExpandedPreviewOpen: Bool,
         configuration: [String: Any]
     ) -> NSView
+
+    /// Locale-aware configured variant. New plugins can use this to localize
+    /// their native view without storing host locale data in configuration.
+    @objc optional func makeView(
+        cornerRadius: CGFloat,
+        renderedSpanValue: Int,
+        isWithinStack: Bool,
+        isExpanded: Bool,
+        isExpandedPreviewOpen: Bool,
+        configuration: [String: Any],
+        localeIdentifier: String
+    ) -> NSView
 }
 
 /// Metadata extracted from a loaded plugin, normalized into Docky's
@@ -83,12 +95,22 @@ final class ExternalWidgetRegistration {
     let bundleURL: URL
     private let plugin: DockyWidgetPlugin
 
-    init(plugin: DockyWidgetPlugin, bundleURL: URL, settingsSchema: [WidgetSettingsField] = []) {
+    init(
+        plugin: DockyWidgetPlugin,
+        bundle: Bundle,
+        bundleURL: URL,
+        settingsSchema: [WidgetSettingsField] = []
+    ) {
         self.bundleURL = bundleURL
         self.plugin = plugin
         self.metadata = ExternalWidgetMetadata(
             identifier: plugin.identifier,
-            displayName: plugin.displayName,
+            displayName: ExternalWidgetLocalization.string(
+                key: ExternalWidgetLocalization.displayNameKey,
+                fallback: plugin.displayName,
+                bundle: bundle,
+                languageIdentifier: AppLocalization.effectiveLanguageIdentifier
+            ),
             systemImageName: plugin.systemImageName,
             defaultSpan: TileSpan(rawValue: plugin.defaultSpanValue) ?? .three,
             supportedSpans: plugin.supportedSpanValues.compactMap(TileSpan.init(rawValue:)),
@@ -99,7 +121,7 @@ final class ExternalWidgetRegistration {
             isExpandable: plugin.isExpandable,
             includesInPalette: plugin.includesInPalette,
             includesInSmartStack: plugin.includesInSmartStack,
-            author: plugin.author ?? "Unknown",
+            author: plugin.author ?? String(localized: "Unknown"),
             version: plugin.version ?? "1.0",
             settingsSchema: settingsSchema
         )
@@ -113,13 +135,26 @@ final class ExternalWidgetRegistration {
         isExpandedPreviewOpen: Bool,
         settings: WidgetSettings = [:]
     ) -> NSView {
+        let configuration = settings.asCocoaConfiguration
+        if let localizedConfigured = plugin.makeView?(
+            cornerRadius: cornerRadius,
+            renderedSpanValue: renderedSpan.rawValue,
+            isWithinStack: isWithinStack,
+            isExpanded: isExpanded,
+            isExpandedPreviewOpen: isExpandedPreviewOpen,
+            configuration: configuration,
+            localeIdentifier: AppLocalization.effectiveLanguageIdentifier
+        ) {
+            return localizedConfigured
+        }
+
         if let configured = plugin.makeView?(
             cornerRadius: cornerRadius,
             renderedSpanValue: renderedSpan.rawValue,
             isWithinStack: isWithinStack,
             isExpanded: isExpanded,
             isExpandedPreviewOpen: isExpandedPreviewOpen,
-            configuration: settings.asCocoaConfiguration
+            configuration: configuration
         ) {
             return configured
         }

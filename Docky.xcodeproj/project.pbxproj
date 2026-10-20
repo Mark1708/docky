@@ -10,6 +10,7 @@
 		11051E012F929079005CE09D /* Frameworks/MediaRemoteAdapter.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 11051E002F929079005CE09D /* Frameworks/MediaRemoteAdapter.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		113717682FA17B980012480C /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 113717672FA17B980012480C /* Sparkle */; };
 		D0C1000C2FA400000000000C /* DockyDockWatchdog.app in Embed Watchdog */ = {isa = PBXBuildFile; fileRef = D0C100012FA4000000000001 /* DockyDockWatchdog.app */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D0C200012FA5000000000001 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D0C200022FA5000000000002 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -19,6 +20,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = D0C100062FA4000000000006;
 			remoteInfo = DockyDockWatchdog;
+		};
+		D0C300072FA6000000000007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 11051DDF2F929079005CE09D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 11051DE62F929079005CE09D;
+			remoteInfo = Docky;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -51,6 +59,9 @@
 		11051DE72F929079005CE09D /* Docky.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Docky.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		11051E002F929079005CE09D /* Frameworks/MediaRemoteAdapter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Frameworks/MediaRemoteAdapter.framework; sourceTree = "<group>"; };
 		D0C100012FA4000000000001 /* DockyDockWatchdog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DockyDockWatchdog.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0C200032FA5000000000003 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D0C200042FA5000000000004 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D0C300012FA6000000000001 /* DockyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DockyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -62,6 +73,11 @@
 		D0C100022FA4000000000002 /* DockyDockWatchdog */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = DockyDockWatchdog;
+			sourceTree = "<group>";
+		};
+		D0C300022FA6000000000002 /* DockyTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = DockyTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -82,6 +98,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D0C300052FA6000000000005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -89,7 +112,9 @@
 			isa = PBXGroup;
 			children = (
 				11051DE92F929079005CE09D /* Docky */,
+				D0C200052FA5000000000005 /* Config */,
 				D0C100022FA4000000000002 /* DockyDockWatchdog */,
+				D0C300022FA6000000000002 /* DockyTests */,
 				11051E032F929079005CE09D /* Frameworks */,
 				11051DE82F929079005CE09D /* Products */,
 			);
@@ -100,6 +125,7 @@
 			children = (
 				11051DE72F929079005CE09D /* Docky.app */,
 				D0C100012FA4000000000001 /* DockyDockWatchdog.app */,
+				D0C300012FA6000000000001 /* DockyTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -110,6 +136,14 @@
 				11051E002F929079005CE09D /* Frameworks/MediaRemoteAdapter.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D0C200052FA5000000000005 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				D0C200022FA5000000000002 /* InfoPlist.strings */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -124,7 +158,6 @@
 				11051DE52F929079005CE09D /* Resources */,
 				11051E022F929079005CE09D /* Embed Frameworks */,
 				D0C1000D2FA400000000000D /* Embed Watchdog */,
-				D0C1000F2FA400000000000F /* Bump CFBundleVersion (Release Only) */,
 				D0C10010BBBBBBBB00000001 /* Copy Bundled Themes */,
 			);
 			buildRules = (
@@ -165,6 +198,29 @@
 			productReference = D0C100012FA4000000000001 /* DockyDockWatchdog.app */;
 			productType = "com.apple.product-type.application";
 		};
+		D0C300032FA6000000000003 /* DockyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D0C3000B2FA600000000000B /* Build configuration list for PBXNativeTarget "DockyTests" */;
+			buildPhases = (
+				D0C300042FA6000000000004 /* Sources */,
+				D0C300052FA6000000000005 /* Frameworks */,
+				D0C300062FA6000000000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D0C300082FA6000000000008 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				D0C300022FA6000000000002 /* DockyTests */,
+			);
+			name = DockyTests;
+			packageProductDependencies = (
+			);
+			productName = DockyTests;
+			productReference = D0C300012FA6000000000001 /* DockyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -181,6 +237,10 @@
 					D0C100062FA4000000000006 = {
 						CreatedOnToolsVersion = 26.4;
 					};
+					D0C300032FA6000000000003 = {
+						CreatedOnToolsVersion = 26.4;
+						TestTargetID = 11051DE62F929079005CE09D;
+					};
 				};
 			};
 			buildConfigurationList = 11051DE22F929079005CE09D /* Build configuration list for PBXProject "Docky" */;
@@ -189,6 +249,7 @@
 			knownRegions = (
 				en,
 				es,
+				ru,
 				Base,
 			);
 			mainGroup = 11051DDE2F929079005CE09D;
@@ -203,6 +264,7 @@
 			targets = (
 				11051DE62F929079005CE09D /* Docky */,
 				D0C100062FA4000000000006 /* DockyDockWatchdog */,
+				D0C300032FA6000000000003 /* DockyTests */,
 			);
 		};
 /* End PBXProject section */
@@ -212,6 +274,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0C200012FA5000000000001 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -222,24 +285,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-/* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		D0C1000F2FA400000000000F /* Bump CFBundleVersion (Release Only) */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
+		D0C300062FA6000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
-			);
-			name = "Bump CFBundleVersion (Release Only)";
-			outputPaths = (
-			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Auto-bump CFBundleVersion on Release builds only.\n# Sparkle compares this numerically; using a fixed-width 12-digit\n# YYYYMMDDhhmm timestamp guarantees each release is greater than the last\n# without tracking state. Earlier ad-hoc YYYYMMDD[N] schemes broke when a\n# shorter same-day value (e.g. 20260507) ended up numerically less than a\n# prior 9-digit value (e.g. 202605012).\n#\n# The embedded DockyDockWatchdog gets the same CFBundleVersion (and the\n# main app's CFBundleShortVersionString) so the helper stays in lockstep —\n# version-mismatched login items can trip up macOS launch services and\n# update flows. Outer CodeSign re-signs the modified watchdog bundle.\nif [ \"$CONFIGURATION\" != \"Release\" ]; then\n    exit 0\nfi\n\nINFOPLIST=\"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nWATCHDOG_INFOPLIST=\"${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/Library/LoginItems/DockyDockWatchdog.app/Contents/Info.plist\"\n\nBUILD_NUMBER=$(date +%Y%m%d%H%M)\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $BUILD_NUMBER\" \"$INFOPLIST\"\necho \"note: bumped Docky CFBundleVersion to $BUILD_NUMBER\"\n\nif [ -f \"$WATCHDOG_INFOPLIST\" ]; then\n    /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $BUILD_NUMBER\" \"$WATCHDOG_INFOPLIST\"\n    SHORT_VERSION=$(/usr/libexec/PlistBuddy -c \"Print :CFBundleShortVersionString\" \"$INFOPLIST\" 2>/dev/null)\n    if [ -n \"$SHORT_VERSION\" ]; then\n        /usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $SHORT_VERSION\" \"$WATCHDOG_INFOPLIST\"\n    fi\n    echo \"note: synced DockyDockWatchdog to CFBundleVersion $BUILD_NUMBER (short $SHORT_VERSION)\"\nfi\n";
 		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
 		D0C10010BBBBBBBB00000001 /* Copy Bundled Themes */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -272,6 +327,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D0C300042FA6000000000004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -280,7 +342,24 @@
 			target = D0C100062FA4000000000006 /* DockyDockWatchdog */;
 			targetProxy = D0C1000A2FA400000000000A /* PBXContainerItemProxy */;
 		};
+		D0C300082FA6000000000008 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 11051DE62F929079005CE09D /* Docky */;
+			targetProxy = D0C300072FA6000000000007 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		D0C200022FA5000000000002 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D0C200032FA5000000000003 /* en */,
+				D0C200042FA5000000000004 /* ru */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		11051DF12F92907A005CE09D /* Debug */ = {
@@ -318,7 +397,6 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 2KC3797KP9;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -382,7 +460,6 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 2KC3797KP9;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -409,12 +486,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = Ducky;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 202607010;
+				CURRENT_PROJECT_VERSION = 202610201006;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 2KC3797KP9;
+				DOCKY_SPARKLE_PUBLIC_KEY = "";
+				DOCKY_UPDATES_ENABLED = NO;
+				DOCKY_UPDATE_FEED_URL = "";
 				ENABLE_APPLE_EVENTS = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -438,21 +516,15 @@
 				INFOPLIST_FILE = Config/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Docky;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Docky needs automation access to control Finder, System Events, and supported apps for file, menu, and window actions.";
-				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Docky uses calendar access to show your next upcoming event in the calendar widget.";
-				INFOPLIST_KEY_NSCalendarsUsageDescription = "Docky uses calendar access to show your next upcoming event in the calendar widget.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Docky uses your location to show local weather in the weather widget.";
 				INFOPLIST_KEY_NSMainNibFile = MainMenu;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Docky uses reminders access to show your open tasks in the reminders widget.";
-				INFOPLIST_KEY_NSRemindersUsageDescription = "Docky uses reminders access to show your open tasks in the reminders widget.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.8.0;
+				MARKETING_VERSION = 0.10.0;
 				PRODUCT_BUNDLE_IDENTIFIER = gt.quintero.Docky;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -478,12 +550,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = Ducky;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 202607010;
+				CURRENT_PROJECT_VERSION = 202610201006;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 2KC3797KP9;
+				DOCKY_SPARKLE_PUBLIC_KEY = "";
+				DOCKY_UPDATES_ENABLED = NO;
+				DOCKY_UPDATE_FEED_URL = "";
 				ENABLE_APPLE_EVENTS = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -507,21 +580,15 @@
 				INFOPLIST_FILE = Config/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Docky;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Docky needs automation access to control Finder, System Events, and supported apps for file, menu, and window actions.";
-				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Docky uses calendar access to show your next upcoming event in the calendar widget.";
-				INFOPLIST_KEY_NSCalendarsUsageDescription = "Docky uses calendar access to show your next upcoming event in the calendar widget.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Docky uses your location to show local weather in the weather widget.";
 				INFOPLIST_KEY_NSMainNibFile = MainMenu;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Docky uses reminders access to show your open tasks in the reminders widget.";
-				INFOPLIST_KEY_NSRemindersUsageDescription = "Docky uses reminders access to show your open tasks in the reminders widget.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.8.0;
+				MARKETING_VERSION = 0.10.0;
 				PRODUCT_BUNDLE_IDENTIFIER = gt.quintero.Docky;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -544,11 +611,9 @@
 		D0C100082FA4000000000008 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 202607010;
+				CURRENT_PROJECT_VERSION = 202610201006;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 2KC3797KP9;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -557,7 +622,7 @@
 				INFOPLIST_KEY_LSBackgroundOnly = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.8.0;
+				MARKETING_VERSION = 0.10.0;
 				PRODUCT_BUNDLE_IDENTIFIER = gt.quintero.Docky.DockWatchdog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -573,11 +638,9 @@
 		D0C100092FA4000000000009 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 202607010;
+				CURRENT_PROJECT_VERSION = 202610201006;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 2KC3797KP9;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -586,7 +649,7 @@
 				INFOPLIST_KEY_LSBackgroundOnly = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.8.0;
+				MARKETING_VERSION = 0.10.0;
 				PRODUCT_BUNDLE_IDENTIFIER = gt.quintero.Docky.DockWatchdog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -597,6 +660,40 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		D0C300092FA6000000000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = gt.quintero.DockyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Docky.app/Contents/MacOS/Docky";
+			};
+			name = Debug;
+		};
+		D0C3000A2FA600000000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = gt.quintero.DockyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Docky.app/Contents/MacOS/Docky";
 			};
 			name = Release;
 		};
@@ -630,6 +727,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		D0C3000B2FA600000000000B /* Build configuration list for PBXNativeTarget "DockyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D0C300092FA6000000000009 /* Debug */,
+				D0C3000A2FA600000000000A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
@@ -638,7 +744,7 @@
 			repositoryURL = "https://github.com/sparkle-project/Sparkle";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.9.1;
+				minimumVersion = 2.10.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

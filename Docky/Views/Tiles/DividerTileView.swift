@@ -40,10 +40,10 @@ struct DividerTileView: View {
 
     private var dividerContextActions: [ContextAction] {
         [
-            .action(preferences.autohidesWindow ? "Turn Hiding Off" : "Turn Hiding On") {
+            .action(preferences.autohidesWindow ? String(localized: "Turn Hiding Off") : String(localized: "Turn Hiding On")) {
                 preferences.autohidesWindow.toggle()
             },
-            .action(dockSettings.magnification ? "Turn Magnification Off" : "Turn Magnification On") {
+            .action(dockSettings.magnification ? String(localized: "Turn Magnification Off") : String(localized: "Turn Magnification On")) {
                 dockSettings.setMagnification(!dockSettings.magnification)
             },
             .submenu(String(localized: "Position on Screen"), children: positionActions),

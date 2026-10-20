@@ -65,7 +65,9 @@ struct AppFolderTileView: View {
     }
 
     private var groupedOpenedBackdropExtent: CGFloat {
-        (CGFloat(groupedOpenedAppSpan) * tileSize) - 4
+        let spacingCount = CGFloat(max(groupedOpenedAppSpan - 1, 0))
+        let interTileSpacing = spacingCount * layout.scaled(preferences.effectiveTileSpacing)
+        return (CGFloat(groupedOpenedAppSpan) * tileSize) + interTileSpacing - 4
     }
 
     private var groupedOpenedBackdropOffset: CGFloat {
@@ -628,12 +630,12 @@ struct AppFolderPopoverView: View {
         Button {
             isReorderMode.toggle()
         } label: {
-            Text(isReorderMode ? "Done" : "Reorder")
+            Text(isReorderMode ? String(localized: "Done") : String(localized: "Reorder"))
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(isReorderMode ? Color.accentColor : .secondary)
         }
         .buttonStyle(.plain)
-        .help(isReorderMode ? "Stop rearranging icons" : "Drag icons to rearrange them")
+        .help(isReorderMode ? String(localized: "Stop rearranging icons") : String(localized: "Drag icons to rearrange them"))
     }
 
     @ViewBuilder
@@ -666,7 +668,7 @@ struct AppFolderPopoverView: View {
                 .contentShape(Rectangle())
                 .onHover { isTitleHovered = $0 }
                 .onTapGesture { startTitleEdit() }
-                .help("Click to rename")
+                .help(String(localized: "Click to rename"))
         }
     }
 
@@ -939,7 +941,7 @@ struct AppFolderListMenuPresenter: NSViewRepresentable {
                 menu.addItem(.separator())
             }
 
-            let openAll = NSMenuItem(title: "Open All", action: #selector(openAllApps), keyEquivalent: "")
+            let openAll = NSMenuItem(title: String(localized: "Open All"), action: #selector(openAllApps), keyEquivalent: "")
             openAll.target = self
             openAll.isEnabled = !tile.apps.isEmpty
             menu.addItem(openAll)

@@ -35,7 +35,12 @@ struct ThemesSettingsView: View {
                 if !preferences.userOverriddenAppearanceKeys.isEmpty {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("You have \(preferences.userOverriddenAppearanceKeys.count) appearance override(s).")
+                            Text(
+                                String(
+                                    format: String(localized: "Appearance overrides: %lld"),
+                                    Int64(preferences.userOverriddenAppearanceKeys.count)
+                                )
+                            )
                                 .font(.callout)
                             Text("These take precedence over the active theme. Clear them to let the theme show through.")
                                 .font(.caption)
@@ -178,7 +183,7 @@ struct ThemesSettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                if let description = theme.manifest.description, !description.isEmpty {
+                if let description = localizedDescription(for: theme) {
                     Text(description)
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -209,6 +214,30 @@ struct ThemesSettingsView: View {
         }
     }
 
+    private func localizedDescription(for theme: InstalledTheme) -> String? {
+        guard let description = theme.manifest.description, !description.isEmpty else {
+            return nil
+        }
+        guard theme.isBundled else {
+            return description
+        }
+
+        switch theme.manifest.id {
+        case "snow-leopard":
+            return AppLocalization.string(
+                key: "theme.snow-leopard.description",
+                fallback: description
+            )
+        case "windows":
+            return AppLocalization.string(
+                key: "theme.windows.description",
+                fallback: description
+            )
+        default:
+            return description
+        }
+    }
+
     // MARK: - Actions
 
     private func revealThemesFolder() {
@@ -218,7 +247,7 @@ struct ThemesSettingsView: View {
 
     private func importTheme() {
         let panel = NSOpenPanel()
-        panel.title = "Import Theme"
+        panel.title = String(localized: "Import Theme")
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
@@ -235,7 +264,7 @@ struct ThemesSettingsView: View {
 
     private func exportTheme() {
         let panel = NSSavePanel()
-        panel.title = "Export Theme"
+        panel.title = String(localized: "Export Theme")
         panel.nameFieldStringValue = defaultExportName()
         panel.allowedContentTypes = ThemesSettingsView.importContentTypes
         panel.canCreateDirectories = true
@@ -260,7 +289,7 @@ struct ThemesSettingsView: View {
         }
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        return "My Docky Theme \(formatter.string(from: Date())).dockytheme"
+        return "\(String(localized: "My Docky Theme")) \(formatter.string(from: Date())).dockytheme"
     }
 
     private var deletionDialogBinding: Binding<Bool> {

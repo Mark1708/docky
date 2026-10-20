@@ -22,8 +22,9 @@ private struct AppFolderNameSuggestion {
 /// systems when a folder is first created.
 func appFolderSeedName(for apps: [AppTile]) -> String {
     let names = apps.map(\.displayName).map(_appFolderNormalizeName(_:)).filter { !$0.isEmpty }
+    let fallback = String(localized: "Folder")
     guard let firstName = names.first else {
-        return "Folder"
+        return fallback
     }
 
     if names.count == 1 {
@@ -31,10 +32,10 @@ func appFolderSeedName(for apps: [AppTile]) -> String {
     }
 
     if names.count == 2 {
-        return _appFolderSanitize("\(firstName) + \(names[1])", fallback: "Folder")
+        return _appFolderSanitize("\(firstName) + \(names[1])", fallback: fallback)
     }
 
-    return _appFolderSanitize("\(firstName) + \(names.count - 1)", fallback: "Folder")
+    return _appFolderSanitize("\(firstName) + \(names.count - 1)", fallback: fallback)
 }
 
 private func _appFolderNormalizeName(_ value: String) -> String {
@@ -73,13 +74,18 @@ final class AppFolderNamingService {
 
 #if canImport(FoundationModels)
         let model = SystemLanguageModel.default
-        guard case .available = model.availability else {
+        let localePolicy = FoundationModelLocalePolicy()
+        guard case .available = model.availability,
+              model.supportsLocale(localePolicy.effectiveLocale) else {
             return fallback
         }
 
         let session = LanguageModelSession(
             model: model,
-            instructions: "You name macOS app folders. Respond with a short, natural title only. Avoid quotes, punctuation, and filler words like folder or apps unless they are essential."
+            instructions: """
+            You name macOS app folders. Respond with a short, natural title only. Avoid quotes, punctuation, and filler words like folder or apps unless they are essential.
+            \(localePolicy.responseInstruction)
+            """
         )
 
         let prompt = "Suggest a concise name for a macOS app folder containing these apps: \(appNames.joined(separator: ", "))."
