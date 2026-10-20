@@ -24,7 +24,7 @@ include:
 ## Development setup
 
 1. Clone `https://github.com/Mark1708/docky.git`.
-2. Open `Docky.xcodeproj` in Xcode 16 or later.
+2. Open `Docky.xcodeproj` in Xcode 26 or later.
 3. Build and run the `Docky` scheme.
 
 The project uses Xcode's file-system-synchronized groups, so new source files

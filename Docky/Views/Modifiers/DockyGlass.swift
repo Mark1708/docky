@@ -85,14 +85,19 @@ private struct DockyGlassModifier: ViewModifier {
 
     @ViewBuilder
     func body(content: Content) -> some View {
+        #if compiler(>=6.2)
         if FeatureGate.shared.isAvailable(.liquidGlass), #available(macOS 26.0, *) {
             content.glassEffect(style.glass, in: shape)
         } else {
             content.background(SkyLightGlassFallback(style: style, shape: shape))
         }
+        #else
+        content.background(SkyLightGlassFallback(style: style, shape: shape))
+        #endif
     }
 }
 
+#if compiler(>=6.2)
 @available(macOS 26.0, *)
 private extension DockyGlassStyle {
     var glass: Glass {
@@ -102,6 +107,7 @@ private extension DockyGlassStyle {
         }
     }
 }
+#endif
 
 /// Visible glass surrogate for macOS 13.5–25. The translucent fill is the
 /// only thing the modifier draws itself; the blur comes from a SkyLight
