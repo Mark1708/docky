@@ -26,7 +26,7 @@ class ReleasePreflightTests(unittest.TestCase):
             "tag_commit": "abc123",
             "main_is_ancestor": True,
             "release_state": None,
-            "has_any_release": True,
+            "has_stable_release": True,
             "latest_appcast": VALID_APPCAST,
             "latest_appcast_error": None,
         }
@@ -37,7 +37,7 @@ class ReleasePreflightTests(unittest.TestCase):
         result = validate_preflight(**self.defaults(
             release_tag="v0.10.0",
             build_version="202610020902",
-            has_any_release=False,
+            has_stable_release=False,
             latest_appcast=None,
         ))
         self.assertEqual(result.marketing_version, "0.10.0")
@@ -75,7 +75,7 @@ class ReleasePreflightTests(unittest.TestCase):
             validate_preflight(**self.defaults(
                 release_tag="v0.10.0",
                 build_version="202610020901",
-                has_any_release=False,
+                has_stable_release=False,
                 latest_appcast=None,
             ))
 

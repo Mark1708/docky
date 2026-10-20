@@ -60,7 +60,7 @@ def validate_preflight(
     tag_commit: str,
     main_is_ancestor: bool,
     release_state: str | None,
-    has_any_release: bool,
+    has_stable_release: bool,
     latest_appcast: bytes | None,
     latest_appcast_error: str | None = None,
 ) -> PreflightResult:
@@ -79,8 +79,8 @@ def validate_preflight(
         raise PreflightError(f"GitHub Release already exists for {release_tag} ({release_state})")
 
     if release_tag == INITIAL_RELEASE_TAG:
-        if has_any_release:
-            raise PreflightError("initial fork release requires an empty GitHub Releases history")
+        if has_stable_release:
+            raise PreflightError("initial fork release requires no existing stable GitHub Release")
         if latest_appcast_error is not None:
             raise PreflightError(f"could not prove initial appcast absence: {latest_appcast_error}")
         if latest_appcast is not None:
@@ -164,17 +164,16 @@ def github_release_state(repository: str, release_tag: str, token: str | None) -
     return "draft" if release.get("draft") else "published"
 
 
-def github_has_any_release(repository: str, token: str | None) -> bool:
-    status, payload = github_request(
-        f"https://api.github.com/repos/{repository}/releases?per_page=1",
+def github_has_stable_release(repository: str, token: str | None) -> bool:
+    status, _ = github_request(
+        f"https://api.github.com/repos/{repository}/releases/latest",
         token,
     )
+    if status == 404:
+        return False
     if status != 200:
-        raise PreflightError(f"GitHub releases lookup failed with HTTP {status}")
-    releases = json.loads(payload)
-    if not isinstance(releases, list):
-        raise PreflightError("GitHub releases response is malformed")
-    return bool(releases)
+        raise PreflightError(f"latest stable GitHub release lookup failed with HTTP {status}")
+    return True
 
 
 def latest_appcast(repository: str, token: str | None) -> bytes | None:
@@ -218,7 +217,7 @@ def main() -> int:
             raise PreflightError("git could not verify ancestry against origin/main")
 
         release_state = github_release_state(repository, release_tag, token)
-        has_any_release = github_has_any_release(repository, token)
+        has_stable_release = github_has_stable_release(repository, token)
         appcast = latest_appcast(repository, token)
         result = validate_preflight(
             release_tag=release_tag,
@@ -227,7 +226,7 @@ def main() -> int:
             tag_commit=tag_commit,
             main_is_ancestor=main_check.returncode == 0,
             release_state=release_state,
-            has_any_release=has_any_release,
+            has_stable_release=has_stable_release,
             latest_appcast=appcast,
         )
         write_outputs(result)

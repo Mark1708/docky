@@ -1,0 +1,126 @@
+name: Unsigned Preview Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      preview_tag:
+        description: Existing preview-vX.Y.Z.N tag on main
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docky-preview-${{ inputs.preview_tag }}
+  cancel-in-progress: false
+
+jobs:
+  build-preview:
+    runs-on: macos-15-intel
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+    outputs:
+      preview_tag: ${{ steps.preflight.outputs.preview_tag }}
+      marketing_version: ${{ steps.preflight.outputs.marketing_version }}
+      preview_number: ${{ steps.preflight.outputs.preview_number }}
+      build_version: ${{ steps.preflight.outputs.build_version }}
+    steps:
+      - name: Check out preview tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.preview_tag }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch main ancestry reference
+        run: git fetch --no-tags origin main:refs/remotes/origin/main
+
+      - name: Validate preview tag and release state
+        id: preflight
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIEW_TAG: ${{ inputs.preview_tag }}
+        run: |
+          BUILD_VERSION="$(date -u +%Y%m%d%H%M)"
+          export BUILD_VERSION
+          python3 scripts/preview_release_preflight.py
+
+      - name: Build and verify unsigned preview DMG
+        id: build
+        env:
+          PREVIEW_TAG: ${{ steps.preflight.outputs.preview_tag }}
+          MARKETING_VERSION: ${{ steps.preflight.outputs.marketing_version }}
+          PREVIEW_NUMBER: ${{ steps.preflight.outputs.preview_number }}
+          BUILD_VERSION: ${{ steps.preflight.outputs.build_version }}
+        run: scripts/build_preview_dmg.sh
+
+      - name: Attest preview DMG provenance
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: ${{ steps.build.outputs.dmg_path }}
+
+      - name: Upload verified preview artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: docky-preview-${{ steps.preflight.outputs.preview_tag }}
+          path: ${{ steps.build.outputs.publication_path }}/*
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-preview:
+    needs: build-preview
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download verified preview artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: docky-preview-${{ needs.build-preview.outputs.preview_tag }}
+          path: artifacts
+
+      - name: Verify downloaded checksum
+        working-directory: artifacts
+        run: sha256sum --check SHA256SUMS
+
+      - name: Create and publish prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIEW_TAG: ${{ needs.build-preview.outputs.preview_tag }}
+          MARKETING_VERSION: ${{ needs.build-preview.outputs.marketing_version }}
+          PREVIEW_NUMBER: ${{ needs.build-preview.outputs.preview_number }}
+        run: |
+          set -euo pipefail
+          if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$PREVIEW_TAG" >/dev/null 2>&1; then
+            echo "A release already exists for $PREVIEW_TAG" >&2
+            exit 1
+          fi
+          gh release create "$PREVIEW_TAG" artifacts/*.dmg artifacts/SHA256SUMS \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --draft \
+            --prerelease \
+            --latest=false \
+            --notes-file artifacts/INSTALL.md \
+            --title "Docky $MARKETING_VERSION Preview $PREVIEW_NUMBER"
+          gh release edit "$PREVIEW_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --draft=false \
+            --prerelease \
+            --latest=false
+
+      - name: Delete unpublished draft after publication failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIEW_TAG: ${{ needs.build-preview.outputs.preview_tag }}
+        run: |
+          if [[ "$(gh release view "$PREVIEW_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft 2>/dev/null || true)" == "true" ]]; then
+            gh release delete "$PREVIEW_TAG" --repo "$GITHUB_REPOSITORY" --yes
+          fi
