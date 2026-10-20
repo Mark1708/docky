@@ -9,9 +9,8 @@
 //
 //  Constraints (set by the caller, not enforced here):
 //    - Only used when the dock is at the bottom edge.
-//    - Only used for folders with ≤ FolderFanView.maximumItemCount items.
-//  Both checks live in `TileView`'s overlay dispatch so that the fan
-//  silently falls back to the grid popover when conditions don't hold.
+//    - Renders at most `maximumItemCount` entries; large folders keep
+//      fan presentation and show the leading entries in their sort order.
 //
 
 import AppKit

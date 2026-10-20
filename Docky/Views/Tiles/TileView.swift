@@ -659,23 +659,17 @@ struct TileView: View {
                         )
                     } else if folderContentViewMode == .fan,
                               position == .bottom,
-                              case .loaded(let snapshotItems) = folderSnapshot,
-                              snapshotItems.count <= FolderFanView.maximumItemCount {
-                        // Fan mode: bottom-anchored parabolic overlay,
-                        // only when the folder fits in a single bow.
-                        // Larger folders silently fall through to the
-                        // grid popover below — `>10 items → grid` is
-                        // intentional per spec.
-                        // Keep the sort order as-is. The fan curve
-                        // already places item 0 at the bottom of the
-                        // arc (closest to the tile) and the last item
-                        // at the top — so the newest entry (sorted
-                        // first) sits near the tile and the oldest
-                        // ends up at the top of the fan naturally.
-                        let fanItems = FolderAccessService.shared.sortedItems(
+                              case .loaded(let snapshotItems) = folderSnapshot {
+                        // Fan mode always stays a fan. Large folders show the
+                        // first items in the active sort order instead of
+                        // silently changing to the grid presentation.
+                        let sortedFanItems = FolderAccessService.shared.sortedItems(
                             in: snapshotItems,
                             sortMode: folderSortMode
                         )
+                        let fanItems = sortedFanItems.count > FolderFanView.maximumItemCount
+                            ? Array(sortedFanItems.prefix(FolderFanView.maximumItemCount))
+                            : sortedFanItems
                         FolderFanPresenter(
                             folderURL: folder.url,
                             items: fanItems,

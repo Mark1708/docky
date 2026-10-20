@@ -65,7 +65,9 @@ struct AppFolderTileView: View {
     }
 
     private var groupedOpenedBackdropExtent: CGFloat {
-        (CGFloat(groupedOpenedAppSpan) * tileSize) - 4
+        let spacingCount = CGFloat(max(groupedOpenedAppSpan - 1, 0))
+        let interTileSpacing = spacingCount * layout.scaled(preferences.effectiveTileSpacing)
+        return (CGFloat(groupedOpenedAppSpan) * tileSize) + interTileSpacing - 4
     }
 
     private var groupedOpenedBackdropOffset: CGFloat {
