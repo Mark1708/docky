@@ -13,6 +13,7 @@ import Sparkle
 import UniformTypeIdentifiers
 
 @main
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 
     static var isRunningTests: Bool {
