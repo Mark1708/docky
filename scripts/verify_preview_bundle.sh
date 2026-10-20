@@ -46,6 +46,11 @@ verify_ad_hoc_signature() {
         print -u2 "Preview bundle must not allow debugger attachment: $bundle"
         exit 1
     fi
+    if [[ "$bundle" == "$APP_PATH" &&
+          "$entitlements" != *"<key>com.apple.security.cs.disable-library-validation</key><true/>"* ]]; then
+        print -u2 "Preview app must allow its ad-hoc signed embedded frameworks"
+        exit 1
+    fi
     if spctl --assess --type execute --verbose=4 "$bundle"; then
         print -u2 "Preview bundle unexpectedly passed Gatekeeper assessment: $bundle"
         exit 1
