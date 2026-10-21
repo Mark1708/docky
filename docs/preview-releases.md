@@ -21,6 +21,7 @@ Each preview bundle must satisfy these invariants:
 - both Docky and the embedded Watchdog are universal `arm64` + `x86_64` binaries;
 - both bundles have the same marketing and build versions;
 - both bundles are ad-hoc signed and pass strict nested `codesign` verification;
+- the main app carries `disable-library-validation` so its ad-hoc signed embedded frameworks can load;
 - neither bundle carries the development-only `get-task-allow` entitlement;
 - Gatekeeper assessment does not report the preview as accepted;
 - `DockyUpdatesEnabled=NO`;
@@ -53,12 +54,13 @@ The workflow:
 
 1. validates the tag, main ancestry, build floor, and release state;
 2. builds a universal Release app with ad-hoc signing and updates disabled;
-3. verifies bundle identifiers, versions, signatures, architectures, and update settings;
-4. creates and remounts the DMG, then verifies its contents;
-5. writes `SHA256SUMS` and creates a GitHub provenance attestation for the DMG;
-6. uploads an intermediate Actions artifact;
-7. rechecks the checksum on a separate Linux publish job;
-8. creates a draft and converts it to a non-latest GitHub prerelease.
+3. verifies bundle identifiers, versions, signatures, architectures, update settings, and required preview entitlements;
+4. launches the built app in test mode and fails if it exits during startup;
+5. creates and remounts the DMG, then verifies its contents;
+6. writes `SHA256SUMS` and creates a GitHub provenance attestation for the DMG;
+7. uploads an intermediate Actions artifact;
+8. rechecks the checksum on a separate Linux publish job;
+9. creates a draft and converts it to a non-latest GitHub prerelease.
 
 The workflow uses no Apple, notarization, Developer ID, or Sparkle private-key secrets.
 

@@ -42,6 +42,7 @@ DMG_NAME="$APP_NAME-$MARKETING_VERSION-preview.$PREVIEW_NUMBER-$BUILD_VERSION.dm
 DMG_PATH="$OUTPUT_PATH/$DMG_NAME"
 CHECKSUM_PATH="$OUTPUT_PATH/SHA256SUMS"
 INSTALL_PATH="$PROJECT_ROOT/docs/preview-installation.md"
+PREVIEW_ENTITLEMENTS_PATH="$PROJECT_ROOT/Config/Preview.entitlements"
 
 rm -rf "$DERIVED_DATA_PATH" "$STAGING_PATH" "$OUTPUT_PATH" "$MOUNT_PATH"
 mkdir -p "$DERIVED_DATA_PATH" "$STAGING_PATH" "$OUTPUT_PATH" "$MOUNT_PATH"
@@ -63,12 +64,25 @@ xcodebuild build \
     CODE_SIGN_IDENTITY=- \
     CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
     DEVELOPMENT_TEAM=
-
 APP_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION/$APP_NAME.app"
+
+if [[ ! -f "$PREVIEW_ENTITLEMENTS_PATH" ]]; then
+    print -u2 "Preview entitlements are missing: $PREVIEW_ENTITLEMENTS_PATH"
+    exit 1
+fi
+
+codesign \
+    --force \
+    --sign - \
+    --options runtime \
+    --timestamp=none \
+    --entitlements "$PREVIEW_ENTITLEMENTS_PATH" \
+    "$APP_PATH"
 APP_PATH="$APP_PATH" \
 MARKETING_VERSION="$MARKETING_VERSION" \
 BUILD_VERSION="$BUILD_VERSION" \
     "$PROJECT_ROOT/scripts/verify_preview_bundle.sh"
+APP_PATH="$APP_PATH" "$PROJECT_ROOT/scripts/smoke_preview_launch.sh"
 
 if [[ ! -f "$INSTALL_PATH" ]]; then
     print -u2 "Preview installation guide is missing: $INSTALL_PATH"
